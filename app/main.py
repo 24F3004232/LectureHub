@@ -1,8 +1,9 @@
+# D:\LectureHub-github\app\main.py
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, send_from_directory, current_app
 from datetime import datetime
 import pytz
 from app.extensions import db
-from app.models import Subject, Event
+from app.models import Subject, Event, RecordingArchive
 from app.auth import login_required, current_user
 from app.sync import sync_subject
 from app.utils import drive_embed_url
@@ -150,22 +151,22 @@ def event_detail(event_id):
         Event.id == event_id, Subject.user_id == current_user.id
     ).first_or_404()
     subj = Subject.query.get(ev.subject_id)
- 
+
     if ev.date is not None and ev.date.tzinfo is None:
         ev.date = IST.localize(ev.date)
     if ev.end_datetime is not None and ev.end_datetime.tzinfo is None:
         ev.end_datetime = IST.localize(ev.end_datetime)
- 
+
     # Drive embed takes priority; fall back to YouTube embed
     embed_url = drive_embed_url(ev.drive_link) or youtube_embed_url(ev.youtube_link or '')
     now = datetime.now(IST)
- 
+
     return render_template('event.html',
                            ev=ev,
                            subject=subj,
                            embed_url=embed_url,
                            now=now)
- 
+
 
 @main_bp.route('/sync/<int:subject_id>', methods=['POST'])
 @login_required
@@ -261,6 +262,133 @@ def delete_subject(subject_id):
     flash(f'Subject "{name}" removed.', 'success')
     return redirect(url_for('main.dashboard'))
 
+
+# ── Resources: past-term recording archive ────────────────────────────────────
+
+MONTH_ORDER = {
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+    "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+
+def term_sort_key(term):
+    """Sort terms like 'May 2026' chronologically."""
+    if not term:
+        return (0, 0)
+    try:
+        dt = datetime.strptime(term.strip(), "%B %Y")
+        return (dt.year, dt.month)
+    except Exception:
+        parts = term.strip().split()
+        if len(parts) == 2:
+            month_name = parts[0][:3].lower()
+            month = MONTH_ORDER.get(month_name, 0)
+            try:
+                year = int(parts[1])
+            except Exception:
+                year = 0
+            return (year, month)
+        return (0, 0)
+
+def archive_sort_key(rec):
+    """Sort recordings by assigned week first, then by date."""
+    return (
+        rec.week_number is None,
+        rec.week_number if rec.week_number is not None else 999,
+        rec.event_date is None,
+        rec.event_date or datetime.min,
+    )
+
+@main_bp.route('/resources')
+@login_required
+def resources():
+    """
+    Resources page. Requires explicit Term and Subject selection to show data.
+    """
+    term_arg = request.args.get("term")
+    subject_arg = request.args.get("subject")
+
+    # Get all distinct terms and sort them chronologically (newest first)
+    term_rows = db.session.query(RecordingArchive.term).distinct().all()
+    terms = sorted([t[0] for t in term_rows if t[0]], key=term_sort_key, reverse=True)
+
+    # DO NOT default to the latest term. Require user to select.
+    selected_term = term_arg.strip() if term_arg else None
+    selected_subject = subject_arg.strip() if subject_arg else None
+
+    subjects = []
+    recordings = []
+
+    # Only fetch subjects if a term is selected
+    if selected_term:
+        subject_query = (
+            db.session.query(RecordingArchive.subject_name)
+            .distinct()
+            .filter(RecordingArchive.term == selected_term)
+        )
+        subjects = sorted([s[0] for s in subject_query.all() if s[0]])
+        
+        # Only fetch recordings if BOTH term and subject are selected
+        if selected_subject:
+            query = RecordingArchive.query.filter(
+                RecordingArchive.term == selected_term,
+                RecordingArchive.subject_name == selected_subject
+            )
+            recordings = query.all()
+            recordings.sort(key=archive_sort_key)
+
+    return render_template(
+        'resources.html',
+        recordings=recordings,
+        terms=terms,
+        subjects=subjects,
+        selected_term=selected_term,
+        selected_subject=selected_subject,
+        week_options=range(1, 13),
+    )
+
+
+@main_bp.route('/resources/<int:archive_id>/week', methods=['POST'])
+@login_required
+def update_resource_week(archive_id):
+    """Global week update endpoint. Any student can update it."""
+    rec = RecordingArchive.query.get_or_404(archive_id)
+    data = request.get_json(silent=True) or {}
+    week = data.get('week', request.form.get('week', ''))
+
+    if week in [None, "", "none"]:
+        rec.week_number = None
+    else:
+        try:
+            week_value = int(week)
+        except Exception:
+            return jsonify(ok=False, message="Invalid week value"), 400
+
+        if week_value < 1 or week_value > 12:
+            return jsonify(ok=False, message="Week must be between 1 and 12"), 400
+
+        rec.week_number = week_value
+
+    db.session.commit()
+    return jsonify(ok=True, week_number=rec.week_number)
+
+
+@main_bp.route('/resources/<int:archive_id>')
+@login_required
+def resource_detail(archive_id):
+    """Internal detail page for a resource, styled like event_detail."""
+    rec = RecordingArchive.query.get_or_404(archive_id)
+    
+    # Drive embed takes priority; fall back to YouTube embed
+    embed_url = drive_embed_url(rec.drive_link) or youtube_embed_url(rec.youtube_link or '')
+    
+    return render_template(
+        'resource_detail.html',
+        rec=rec,
+        embed_url=embed_url,
+        week_options=range(1, 13),
+    )
+
+
 @main_bp.route('/robots.txt')
 def robots():
     """Allow crawlers, block private routes, point to sitemap."""
@@ -276,6 +404,7 @@ def robots():
         "Disallow: /sync\n"
         "Disallow: /sync_all\n"
         "Disallow: /delete_subject\n"
+        "Disallow: /resources\n"   # Added resources to disallow for crawlers
         "\n"
         "# AI assistants welcome on public pages.\n"
         "Sitemap: https://lecflow.space/sitemap.xml\n"
@@ -308,7 +437,7 @@ def llms_txt():
     """llms.txt — emerging standard for AI assistants to understand the site."""
     body = """# LECFLOW
 
-> LECFLOW (LectureHub) is a free TA and Instructorlecture tracker for IIT Madras BS Online Degree
+> LECFLOW (LectureHub) is a free TA and Instructor lecture organiser for IIT Madras BS Online Degree
 > students. It syncs public course calendars, surfaces live Google Meet links and
 > Drive/YouTube recordings per lecture, and provides a Markdown notes editor with
 > KaTeX math, autosave and PDF export, plus watched-progress tracking and a

@@ -1014,12 +1014,20 @@ function switchTab(id) {
    YOUTUBE LINK (handles both table + card versions)
 ========================================================= */
 function getYtWrap(id) {
-  return document.getElementById('yt-wrap-' + id)
-      || document.getElementById('yt-wrap-card-' + id);
+  const desktop = document.getElementById('yt-wrap-' + id);
+  const mobile  = document.getElementById('yt-wrap-card-' + id);
+  if (mobile  && mobile.offsetParent  !== null) return mobile;
+  if (desktop && desktop.offsetParent !== null) return desktop;
+  return desktop || mobile;
 }
+
 function getYtInput(id) {
-  return document.getElementById('yt-url-' + id)
-      || document.getElementById('yt-url-card-' + id);
+  const desktop = document.getElementById('yt-url-' + id);
+  const mobile  = document.getElementById('yt-url-card-' + id);
+  // Return whichever one belongs to a currently visible parent
+  if (mobile && mobile.offsetParent !== null) return mobile;
+  if (desktop && desktop.offsetParent !== null) return desktop;
+  return desktop || mobile; // fallback
 }
 
 function showYtInput(id, withCancel) {

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="resource-detail-page">
+
+    <div class="page-header">
+        <h1>{{ rec.title or rec.subject_name }}</h1>
+    </div>
+
+    <div class="event-detail-card">
+
+        <p>
+            <strong>Subject:</strong>
+            {{ rec.subject_name }}
+        </p>
+
+        <p>
+            <strong>Term:</strong>
+            {{ rec.term }}
+        </p>
+
+        <p>
+            <strong>Date:</strong>
+            {% if rec.event_date %}
+                {{ rec.event_date.strftime('%d %b %Y') }}
+            {% else %}
+                Date not available
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Week:</strong>
+            <span id="week-badge-{{ rec.id }}">
+                {% if rec.week_number %}
+                    Week {{ rec.week_number }}
+                {% else %}
+                    Week not set
+                {% endif %}
+            </span>
+        </p>
+
+        <div class="week-control">
+            <label for="week-select-{{ rec.id }}">
+                Set Week
+            </label>
+
+            <select
+                id="week-select-{{ rec.id }}"
+                class="form-select week-selector"
+                data-archive-id="{{ rec.id }}"
+                data-update-url="{{ url_for('main.update_resource_week', archive_id=rec.id) }}"
+                onchange="updateResourceWeek(this)"
+            >
+                <option value="">Not set</option>
+
+                {% for week in week_options %}
+                    <option
+                        value="{{ week }}"
+                        {% if rec.week_number == week %}
+                            selected
+                        {% endif %}
+                    >
+                        Week {{ week }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="event-actions" style="margin-top: 20px;">
+            <a
+                class="btn btn-primary"
+                href="{{ rec.drive_link }}"
+                target="_blank"
+                rel="noopener"
+            >
+                Open Drive Recording
+            </a>
+
+            {% if rec.youtube_link %}
+                <a
+                    class="btn btn-secondary"
+                    href="{{ rec.youtube_link }}"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    YouTube
+                </a>
+            {% endif %}
+
+            <a
+                class="btn btn-secondary"
+                href="{{ url_for('resources.resources') }}"
+            >
+                Back to Resources
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    async function updateResourceWeek(selectElement) {
+        const archiveId = selectElement.dataset.archiveId;
+        const updateUrl = selectElement.dataset.updateUrl;
+        const week = selectElement.value;
+
+        const headers = {
+            "Content-Type": "application/json"
+        };
+
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        if (csrfMeta) {
+            headers["X-CSRFToken"] = csrfMeta.content;
+        }
+
+        try {
+            const response = await fetch(updateUrl, {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify({
+                    week: week
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.ok) {
+                alert(data.message || "Could not update week.");
+                return;
+            }
+
+            const badge = document.getElementById(`week-badge-${archiveId}`);
+
+            if (badge) {
+                if (data.week_number) {
+                    badge.textContent = `Week ${data.week_number}`;
+                } else {
+                    badge.textContent = "Week not set";
+                }
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert("Could not update week.");
+        }
+    }
+</script>
+{% endblock %}

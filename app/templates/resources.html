@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{% block title %}Resources{% endblock %}
+
+{% block extra_styles %}
+/* ── Header ───────────────────────────────────── */
+.dash-header { margin-bottom: 24px; }
+.dash-title { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); line-height: 1.2; }
+.dash-subtitle { font-size: 14px; color: var(--muted); margin-top: 4px; font-weight: 400; }
+
+/* ── Resource Filters ─────────────────────────── */
+.resource-filters {
+  display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;
+  margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-1);
+}
+.filter-group { display: flex; flex-direction: column; gap: 6px; }
+.filter-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+.res-select {
+  padding: 10px 14px; border: 1px solid var(--border); border-radius: 12px;
+  background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit;
+  cursor: pointer; outline: none; transition: border-color .15s, box-shadow .15s; min-width: 200px;
+}
+.res-select:focus { border-color: var(--violet); box-shadow: var(--ring); }
+.res-select:disabled { opacity: 0.5; cursor: not-allowed; }
+.clear-btn {
+  padding: 10px 20px; border: 1px solid var(--border); border-radius: 12px;
+  text-decoration: none; color: var(--text); background: var(--surface2); font-size: 14px;
+  transition: background .15s;
+}
+.clear-btn:hover { background: var(--border); }
+
+/* ── Week Dropdown ────────────────────────────── */
+.week-select {
+  padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface2); color: var(--text); font-size: 13px; font-family: inherit;
+  cursor: pointer; outline: none;
+}
+.week-select:focus { border-color: var(--violet); }
+
+/* ── Empty state ──────────────────────────────── */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); background: var(--surface); border: 1px dashed var(--border-strong); border-radius: var(--radius); }
+.empty-state .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.6; }
+.empty-state h3 { font-size: 16px; color: var(--text); margin-bottom: 6px; font-weight: 600; }
+.empty-state p { font-size: 13px; color: var(--muted); max-width: 400px; margin: 0 auto; line-height: 1.5; }
+
+/* ── Table (desktop) ─────────────────────────── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); }
+table { width: 100%; border-collapse: collapse; min-width: 700px; }
+thead { background: var(--surface2); }
+th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; border-bottom: 1px solid var(--border); }
+td { padding: 14px 16px; border-top: 1px solid var(--border-dim); vertical-align: middle; }
+tr:hover td { background: var(--surface2); }
+.date-cell { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.date-cell .day { color: var(--text); font-weight: 600; display: block; font-family: 'Inter', sans-serif; font-size: 13px; margin-bottom: 2px; }
+.cal-title { font-weight: 500; font-size: 14px; color: var(--text); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: color .15s; }
+.cal-title:hover { color: var(--violet-ink); }
+.cal-title .play-icon { font-size: 10px; color: var(--muted); background: var(--surface2); width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; transition: background .15s, color .15s; }
+.cal-title:hover .play-icon { color: #fff; background: var(--violet); }
+
+/* ── Link badges ─────────────────────────────── */
+.link-cell { white-space: nowrap; vertical-align: middle; }
+.link-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; text-decoration: none; transition: opacity .15s, transform .1s; margin-right: 6px;}
+.link-badge:hover { opacity: .85; transform: translateY(-1px); }
+.link-drive { background: var(--green-light); color: var(--green); border: 1px solid var(--green-border); }
+.link-yt    { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+
+/* ── Mobile Cards ────────────────────────────── */
+.cards-list { display: none; }
+.event-card { background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-1); }
+.event-card-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.event-card-date { font-family: var(--mono); font-size: 12px; color: var(--muted); line-height: 1.4; }
+.event-card-date .day { display: block; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.event-card-title { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; color: var(--text); text-decoration: none; margin-bottom: 12px; }
+.event-card-title:hover { color: var(--violet-ink); }
+.event-card-title .play-icon { font-size: 11px; color: var(--muted); background: var(--surface2); width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+.event-card-title:hover .play-icon { background: var(--violet); color: #fff; }
+.event-card-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.event-card-badges .link-badge { padding: 8px 14px; font-size: 13px; }
+
+@media (max-width: 800px) {
+  .table-wrap { display: none !important; }
+  .cards-list { display: block; }
+  .dash-title { font-size: 20px; }
+  .res-select { width: 100%; min-width: unset; }
+  .resource-filters { flex-direction: column; align-items: stretch; }
+}
+{% endblock %}
+
+{% block content %}
+<div class="dash-header">
+  <h1 class="dash-title">Resources</h1>
+  <p class="dash-subtitle">Browse and Watch past term TA session's recordings.</p>
+</div>
+
+<!-- FILTERS -->
+<form method="GET" action="{{ url_for('main.resources') }}" class="resource-filters" id="res-form">
+  <div class="filter-group">
+    <label class="filter-label" for="term">Term / Year</label>
+    <select name="term" id="term" class="res-select" onchange="this.form.submit()">
+      <option value="">Select a Term</option>
+      {% for term in terms %}
+        <option value="{{ term }}" {% if selected_term == term %}selected{% endif %}>
+          {{ term }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label class="filter-label" for="subject">Subject</label>
+    <select name="subject" id="subject" class="res-select" onchange="this.form.submit()" {% if not selected_term %}disabled{% endif %}>
+      <option value="">Select a Subject</option>
+      {% for subject in subjects %}
+        <option value="{{ subject }}" {% if selected_subject == subject %}selected{% endif %}>
+          {{ subject }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  {% if selected_term or selected_subject %}
+  <div class="filter-group">
+    <a href="{{ url_for('main.resources') }}" class="clear-btn">Clear Filters</a>
+  </div>
+  {% endif %}
+</form>
+
+{% if not selected_term or not selected_subject %}
+  <!-- EMPTY STATE: No filters applied -->
+  <div class="empty-state">
+    <div class="icon">🔍</div>
+    <h3>Select a Term and Subject</h3>
+    <p>Choose a past term and subject from the filters above to view archived lecture recordings.</p>
+  </div>
+{% else %}
+  
+  {% if recordings %}
+    {# ══════ DESKTOP: table ══════ #}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 120px;">Week</th>
+            <th>Date</th>
+            <th>Lecture Title</th>
+            <th>Links</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rec in recordings %}
+          <tr id="row-{{ rec.id }}">
+            <td>
+              <select class="week-select week-selector" 
+                      data-archive-id="{{ rec.id }}" 
+                      onchange="updateResourceWeek(this)">
+                <option value="">Set Week No.</option>
+                {% for week in week_options %}
+                  <option value="{{ week }}" {% if rec.week_number == week %}selected{% endif %}>
+                    Week {{ week }}
+                  </option>
+                {% endfor %}
+              </select>
+            </td>
+            <td class="date-cell">
+              {% if rec.event_date %}
+                <span class="day">{{ rec.event_date.strftime('%a') }}</span>
+                {{ rec.event_date.strftime('%d %b %Y') }}
+              {% else %}
+                <span style="color:var(--border)">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <a class="cal-title" href="{{ rec.drive_link }}" target="_blank" rel="noopener">
+                <span class="play-icon">▶</span> {{ rec.title or 'Lecture Recording' }}
+              </a>
+            </td>
+            <td class="link-cell">
+              {% if rec.drive_link %}
+                <a class="link-badge link-drive" href="{{ rec.drive_link }}" target="_blank" rel="noopener">🎬 Drive</a>
+              {% endif %}
+              {% if rec.youtube_link %}
+                <a class="link-badge link-yt" href="{{ rec.youtube_link }}" target="_blank" rel="noopener">▶ YouTube</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {# ══════ MOBILE: card list ══════ #}
+    <div class="cards-list">
+      {% for rec in recordings %}
+        <article id="card-{{ rec.id }}" class="event-card">
+          <div class="event-card-header">
+            <div class="event-card-date">
+              {% if rec.event_date %}
+                <span class="day">{{ rec.event_date.strftime('%a, %d %b') }}</span>
+                {{ rec.event_date.strftime('%Y') }}
+              {% else %}
+                <span style="color:var(--muted)">No date</span>
+              {% endif %}
+            </div>
+            <select class="week-select week-selector" 
+                    data-archive-id="{{ rec.id }}" 
+                    onchange="updateResourceWeek(this)">
+              <option value="">Set Week No.</option>
+              {% for week in week_options %}
+                <option value="{{ week }}" {% if rec.week_number == week %}selected{% endif %}>
+                  Week {{ week }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <a class="event-card-title" href="{{ rec.drive_link }}" target="_blank" rel="noopener">
+            <span class="play-icon">▶</span>
+            <span>{{ rec.title or 'Lecture Recording' }}</span>
+          </a>
+
+          <div class="event-card-badges">
+            {% if rec.drive_link %}
+              <a class="link-badge link-drive" href="{{ rec.drive_link }}" target="_blank" rel="noopener">🎬 Drive</a>
+            {% endif %}
+            {% if rec.youtube_link %}
+              <a class="link-badge link-yt" href="{{ rec.youtube_link }}" target="_blank" rel="noopener">▶ YouTube</a>
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <!-- EMPTY STATE: Filters applied but no data -->
+    <div class="empty-state">
+      <div class="icon">📭</div>
+      <h3>No Recordings Found</h3>
+      <p>There are no archived recordings for this subject and term yet.</p>
+    </div>
+  {% endif %}
+
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function updateResourceWeek(selectElement) {
+  const archiveId = selectElement.dataset.archiveId;
+  const week = selectElement.value;
+
+  try {
+    const res = await fetch(`/resources/${archiveId}/week`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ week: week })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      alert(data.message || "Could not update week.");
+      return;
+    }
+
+    // Sync all dropdowns for this specific recording on the page (both desktop and mobile views)
+    document.querySelectorAll(`.week-selector[data-archive-id="${archiveId}"]`).forEach(sel => {
+      sel.value = data.week_number || "";
+    });
+
+  } catch (error) {
+    console.error(error);
+    alert("Could not update week.");
+  }
+}
+</script>
+{% endblock %}

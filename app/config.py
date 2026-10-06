@@ -14,6 +14,6 @@ class Config:
     SUPABASE_JWT_SECRET = os.environ['SUPABASE_JWT_SECRET']
     
     # ── Term defaults (for centralized date management) ──
-    DEFAULT_TERM_START = '2026-06-16'
-    DEFAULT_TERM_END = '2026-09-30'
-    DEFAULT_TERM_LABEL = 'May 2026'
+    DEFAULT_TERM_START = '2026-10-04'
+    DEFAULT_TERM_END = '2027-01-15'
+    DEFAULT_TERM_LABEL = 'September 2026'

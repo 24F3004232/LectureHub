@@ -74,6 +74,10 @@ class RecordingArchive(db.Model):
     event_date = db.Column(db.DateTime, nullable=True)               # keeps lecture order
     title = db.Column(db.Text, nullable=True)                        # which lecture it was
     source_event_id = db.Column(db.Integer, nullable=True)           # traceability only, no FK
+
+    # Global week label: visible/editable by all students
+    week_number = db.Column(db.Integer, nullable=True, index=True)   # 1 to 12
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     __table_args__ = (

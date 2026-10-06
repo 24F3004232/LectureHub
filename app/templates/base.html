@@ -276,6 +276,24 @@
       box-shadow: 0 4px 14px var(--accent-dim);
     }
 
+    /* ── "new" badge on nav links ───────── */
+    .nav-new-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--red);
+      border-radius: 100px;
+      padding: 1px 5px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      vertical-align: super;
+      line-height: 1.4;
+      margin-left: 3px;
+      /* keep it crisp at small size */
+      -webkit-font-smoothing: auto;
+    }
+
     /* ── Theme toggle (in nav pill) ─────── */
     .theme-toggle {
       width: 34px;
@@ -628,6 +646,7 @@
       </button>
 
       {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.resources') }}">Resources <span class="nav-new-badge">new</span></a>
         <a href="{{ url_for('main.add_subject') }}">+ Subject</a>
         <form action="{{ url_for('auth.logout') }}" method="POST" style="display:inline">
           <button type="submit">Sign out</button>
