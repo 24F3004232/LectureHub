@@ -1011,23 +1011,25 @@ function switchTab(id) {
 }
 
 /* =========================================================
-   YOUTUBE LINK (handles both table + card versions)
+   YOUTUBE LINK (FIXED FOR MOBILE)
 ========================================================= */
+// Check screen width instead of relying on offsetParent (which fails on hidden elements)
+function isMobileView() {
+  return window.matchMedia('(max-width: 800px)').matches;
+}
+
 function getYtWrap(id) {
-  const desktop = document.getElementById('yt-wrap-' + id);
   const mobile  = document.getElementById('yt-wrap-card-' + id);
-  if (mobile  && mobile.offsetParent  !== null) return mobile;
-  if (desktop && desktop.offsetParent !== null) return desktop;
+  const desktop = document.getElementById('yt-wrap-' + id);
+  if (isMobileView()) return mobile || desktop;
   return desktop || mobile;
 }
 
 function getYtInput(id) {
-  const desktop = document.getElementById('yt-url-' + id);
   const mobile  = document.getElementById('yt-url-card-' + id);
-  // Return whichever one belongs to a currently visible parent
-  if (mobile && mobile.offsetParent !== null) return mobile;
-  if (desktop && desktop.offsetParent !== null) return desktop;
-  return desktop || mobile; // fallback
+  const desktop = document.getElementById('yt-url-' + id);
+  if (isMobileView()) return mobile || desktop;
+  return desktop || mobile;
 }
 
 function showYtInput(id, withCancel) {
@@ -1036,8 +1038,13 @@ function showYtInput(id, withCancel) {
   wrap.style.display = 'flex';
   wrap.style.marginTop = '8px';
   const inp = wrap.querySelector('input[type="url"]');
-  if (inp) { inp.focus(); inp.select(); }
+  if (inp) { 
+    inp.focus(); 
+    // Wrapped in try/catch because iOS Safari sometimes blocks .select() on focus
+    try { inp.select(); } catch(e) {} 
+  }
 }
+
 function hideYtInput(id) {
   ['yt-wrap-' + id, 'yt-wrap-card-' + id].forEach(wid => {
     const w = document.getElementById(wid);
