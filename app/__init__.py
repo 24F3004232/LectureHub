@@ -20,6 +20,7 @@ def create_app():
             'default_term_start': app.config['DEFAULT_TERM_START'],
             'default_term_end': app.config['DEFAULT_TERM_END'],
             'default_term_label': app.config['DEFAULT_TERM_LABEL'],
+            'google_client_id': app.config.get('GOOGLE_CLIENT_ID', ''),
         }
 
     # ── Prevent caching of authenticated pages ──

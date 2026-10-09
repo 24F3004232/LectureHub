@@ -121,8 +121,8 @@
   background: var(--accent);
   border-color: var(--accent);
   color: var(--on-accent);
-  flex-shrink: 0;          /* never shrinks when tabs overflow */
-  margin-left: auto;       /* pushes it to the far right if space allows */
+  flex-shrink: 0;
+  margin-left: auto;
 }
 .sync-btn:hover {
   background: var(--accent-hover);
@@ -144,7 +144,7 @@
   color: var(--on-accent);
 }
 .sync-btn .tab-count {
-  background: rgba(16, 16, 16, 0.15);   /* subtle darkened pill on green */
+  background: rgba(16, 16, 16, 0.15);
 }
 
 .sync-icon {
@@ -172,7 +172,6 @@
   margin-bottom: 24px;
   transition: background-color .25s ease, border-color .25s ease;
 
-  /* Desktop: 2-column grid — filter/progress left, delete button right */
   display: grid;
   grid-template-columns: 1fr auto;
   grid-template-rows: auto 1fr;
@@ -193,7 +192,7 @@
 
 .info-actions {
   grid-column: 2;
-  grid-row: 1 / 3;   /* spans both rows, centered vertically */
+  grid-row: 1 / 3;
   display: flex;
   align-items: center;
   min-height: 100%;
@@ -681,7 +680,6 @@ tr.watched-row td { opacity: .6; }
     font-size: 12px;
   }
 
-  /* Info card: filter + delete in one row, progress below */
   .subject-info-card {
     display: flex;
     flex-wrap: wrap;
@@ -953,10 +951,12 @@ tr.watched-row td { opacity: .6; }
   </div>
 
   {% else %}
+  {# ── Empty state: shown when no events have been fetched yet ── #}
   <div class="empty-state">
     <div class="icon">📅</div>
-    <h3>No public events found</h3>
-    <p>This Calendar URL might not be public. Please request your TA or Instructor to make it public, then sync again.</p>
+    <h3>No events yet</h3>
+    <p>Hit <strong>Sync</strong> above — your existing IITM Google login will be
+    used automatically to fetch events from restricted calendars.</p>
   </div>
   {% endif %}
 
@@ -966,6 +966,14 @@ tr.watched-row td { opacity: .6; }
 {% endblock %}
 
 {% block scripts %}
+{# ── Google Identity Services ──────────────────────────────────────────────
+   Loaded async so it never blocks page render. Used only by syncAll() to
+   silently obtain a short-lived read-only calendar token from the student's
+   existing IITM Google browser session — identical mechanism to Drive iframes.
+   Your Flask session / auth is completely untouched.
+─────────────────────────────────────────────────────────────────────────── #}
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 <script>
 /* =========================================================
    MARKDOWN PREVIEWS (works in both table + cards)
@@ -1013,7 +1021,6 @@ function switchTab(id) {
 /* =========================================================
    YOUTUBE LINK (FIXED FOR MOBILE)
 ========================================================= */
-// Check screen width instead of relying on offsetParent (which fails on hidden elements)
 function isMobileView() {
   return window.matchMedia('(max-width: 800px)').matches;
 }
@@ -1038,10 +1045,9 @@ function showYtInput(id, withCancel) {
   wrap.style.display = 'flex';
   wrap.style.marginTop = '8px';
   const inp = wrap.querySelector('input[type="url"]');
-  if (inp) { 
-    inp.focus(); 
-    // Wrapped in try/catch because iOS Safari sometimes blocks .select() on focus
-    try { inp.select(); } catch(e) {} 
+  if (inp) {
+    inp.focus();
+    try { inp.select(); } catch(e) {}
   }
 }
 
@@ -1125,24 +1131,79 @@ async function toggleWatch(id) {
   if (card) card.classList.toggle('watched-row', data.watched);
 }
 
+/* =========================================================
+   GOOGLE IDENTITY SERVICES
+   Silently gets a read-only calendar token from the student's
+   existing IITM Google browser session — no login button,
+   no popup after first consent, exactly like the Drive iframe.
+
+   If GOOGLE_CLIENT_ID is not configured in .env, _gisTokenClient
+   stays null and syncAll() falls back to the plain ICS path.
+========================================================= */
+let _gisTokenClient = null;
+let _syncBtnPending  = null;
+
+function _initGisClient() {
+  {% if google_client_id %}
+  _gisTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: "{{ google_client_id }}",
+    scope:     "https://www.googleapis.com/auth/calendar.readonly",
+    // Empty string = silent if student already consented.
+    // On first use Google shows its own one-click consent popup,
+    // then stays silent forever after — same as the Drive video iframe.
+    prompt:    "",
+    callback:  (resp) => {
+      if (resp.error) {
+        // Token failed — fall back to plain sync (may return 0 events
+        // for restricted calendars, which is fine; student sees the
+        // actionable error message returned by sync_subject_with_token)
+        console.warn('GIS token error:', resp.error);
+        _doSyncAll(_syncBtnPending, null);
+        return;
+      }
+      _doSyncAll(_syncBtnPending, resp.access_token);
+    }
+  });
+  {% endif %}
+}
+
+// Poll until the async GIS script has loaded, then init once
+window.addEventListener("load", () => {
+  const poll = setInterval(() => {
+    if (window.google?.accounts?.oauth2) {
+      _initGisClient();
+      clearInterval(poll);
+    }
+  }, 100);
+});
 
 /* =========================================================
-   SYNC ALL (with live status messages - 1.5s rotation)
+   SYNC ALL (with live status messages — 1.5 s rotation)
 ========================================================= */
-async function syncAll(btn) {
-  const icon     = btn.querySelector('.sync-icon');
-  const nameEl   = btn.querySelector('.tab-name');
-  const countEl  = btn.querySelector('.tab-count');
-  
-  // Collect all subject names from the tabs
+function syncAll(btn) {
+  _syncBtnPending = btn;
+
+  if (_gisTokenClient) {
+    // Ask GIS for a token — callback above calls _doSyncAll
+    _gisTokenClient.requestAccessToken();
+  } else {
+    // No Client ID configured — plain sync (public calendars only)
+    _doSyncAll(btn, null);
+  }
+}
+
+async function _doSyncAll(btn, token) {
+  const icon    = btn.querySelector('.sync-icon');
+  const nameEl  = btn.querySelector('.tab-name');
+  const countEl = btn.querySelector('.tab-count');
+
   const subjectTabs = document.querySelectorAll('.tabs .tab-btn .tab-name');
   const subjects = Array.from(subjectTabs).map(el => el.textContent.trim()).filter(Boolean);
-  
+
   btn.disabled = true;
   icon.classList.add('spinning');
   countEl.textContent = '…';
-  
-  // Status message rotation
+
   let msgIndex = 0;
   const messages = [
     'Connecting…',
@@ -1152,32 +1213,50 @@ async function syncAll(btn) {
     'Updating links…',
     'Finalizing…'
   ];
-  
-  // Rotates every 1.5 seconds (1500ms)
+
+  // Rotate status label every 1.5 s so the student sees progress
   const statusTimer = setInterval(() => {
     countEl.textContent = messages[msgIndex % messages.length];
     msgIndex++;
   }, 1500);
 
   try {
-    const res  = await fetch('/sync_all', { method: 'POST' });
+    const res = await fetch('/sync_all', {
+      method:  'POST',
+      headers: token ? { 'Content-Type': 'application/json' } : {},
+      body:    token ? JSON.stringify({ google_token: token }) : null
+    });
     const data = await res.json();
-    
+
     clearInterval(statusTimer);
-    
-    const ok   = data.results.filter(r => r.ok).length;
+
+    const ok = data.results.filter(r => r.ok).length;
     countEl.textContent = `${ok}/${data.results.length}`;
-    
+
+    // Show any per-subject errors in the console so devs can debug
+    data.results.filter(r => !r.ok).forEach(r => {
+      console.warn(`Sync failed for "${r.subject}": ${r.msg}`);
+    });
+
+    // If any subject returned an actionable error, surface it once
+    const firstError = data.results.find(r => !r.ok);
+    if (firstError && ok === 0) {
+      // All failed — show the message from the first one
+      setTimeout(() => alert(`Sync issue: ${firstError.msg}`), 950);
+    }
+
     setTimeout(() => location.reload(), 900);
-  } catch {
+
+  } catch (err) {
     clearInterval(statusTimer);
     countEl.textContent = '✕';
     icon.classList.remove('spinning');
-    
-    // Reset button after 1.5 seconds on error
+    console.error('Sync network error:', err);
+
+    // Reset button after 1.5 s so student can retry
     setTimeout(() => {
       nameEl.innerHTML = `<span class="sync-icon">↻</span> Sync`;
-      countEl.textContent = 'All';
+      countEl.textContent = '';
       btn.disabled = false;
     }, 1500);
   }

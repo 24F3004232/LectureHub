@@ -41,6 +41,29 @@ def embed_url_to_ical(url):
     return url
 
 
+def extract_calendar_id(url):
+    """Extract the raw calendar ID from any Google Calendar URL.
+    Works with embed URLs (?src=...) and dashboard share links (?cid=...)."""
+    url = url.strip()
+
+    # embed URL: ?src=c_xxx%40group.calendar.google.com
+    src_match = re.search(r'[?&]src=([^&]+)', url)
+    if src_match:
+        return requests.utils.unquote(src_match.group(1))
+
+    # dashboard share link: ?cid=base64EncodedCalendarId
+    cid_match = re.search(r'[?&]cid=([^&]+)', url)
+    if cid_match:
+        try:
+            cid_b64 = requests.utils.unquote(cid_match.group(1))
+            cid_b64 += '=' * (-len(cid_b64) % 4)
+            return base64.b64decode(cid_b64).decode('utf-8')
+        except Exception:
+            pass
+
+    return None
+
+
 def extract_links(text):
     """Extract Google Meet and Drive/recording links from event description text."""
     if not text:

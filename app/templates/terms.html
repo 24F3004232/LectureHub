@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}Terms of Service – LECFLOW{% endblock %}
+
+{% block extra_styles %}
+.terms-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding-bottom: 64px;
+}
+
+.terms-hero {
+  margin-bottom: 40px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+.terms-hero h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.terms-hero .meta {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.terms-section {
+  margin-bottom: 36px;
+}
+.terms-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  margin-top: 24px;
+  letter-spacing: -0.2px;
+}
+.terms-section h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+.terms-section p,
+.terms-section li {
+  font-size: 14px;
+  color: var(--text-soft);
+  line-height: 1.75;
+  margin-bottom: 8px;
+}
+.terms-section ul {
+  padding-left: 20px;
+  margin: 8px 0 16px 0;
+}
+.terms-section li {
+  margin-bottom: 6px;
+}
+.terms-section a {
+  color: var(--violet-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.terms-section a:hover {
+  color: var(--violet);
+}
+
+.highlight-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid #E53E3E; /* Red accent for important disclaimer */
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin: 16px 0;
+  font-size: 13.5px;
+  color: var(--text-soft);
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.contact-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-top: 12px;
+}
+.contact-card p {
+  font-size: 14px;
+  color: var(--text-soft);
+  line-height: 1.75;
+  margin: 0;
+}
+.contact-card a {
+  color: var(--violet-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+{% endblock %}
+
+{% block content %}
+<div class="terms-page">
+
+  <div class="terms-hero">
+    <h1>Terms of Service</h1>
+    <p class="meta">Last updated: October 2026 &nbsp;·&nbsp; Applies to lecflow.space</p>
+  </div>
+
+  <div class="terms-section">
+    <p>Welcome to LECFLOW! Please read this Service Agreement (the “Agreement”) carefully before accessing or using our Services. By using the Service, you acknowledge that you have read, understood, and agreed to be bound by this Agreement.</p>
+    <p>This Agreement constitutes a legally binding agreement between you and <strong>Shubham Chaurasiya</strong>, an individual operating under the name “LECFLOW” (hereinafter referred to as “LECFLOW”, “we”, “us”, or “our”).</p>
+    
+    <div class="highlight-box">
+      <strong>Important Institutional Disclaimer:</strong> LECFLOW is an independent, student-built productivity tool. LECFLOW is NOT affiliated with, endorsed by, sponsored by, or officially associated with the Indian Institute of Technology Madras (IIT Madras), its faculty, or the IITM BS Degree program. All course names, logos, and educational materials linked within the Service are the property of their respective owners.
+    </div>
+  </div>
+
+  <div class="terms-section">
+    <h2>1. Eligibility and Account Registration</h2>
+    <ul>
+      <li><strong>Minimum Age:</strong> You must be at least 13 years old to use LECFLOW. If you are between the ages of 13 and 18, you represent that you have your parent or legal guardian's permission to use the Service and that they have agreed to this Agreement on your behalf.</li>
+      <li><strong>Account Security:</strong> You are responsible for safeguarding your password. You agree not to disclose your password to any third party and to take sole responsibility for any activities or actions under your account.</li>
+      <li><strong>Accuracy of Information:</strong> You must provide accurate and complete information when registering. We reserve the right to suspend accounts that use fake or temporary email addresses.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>2. Service Usage Rules & Academic Integrity</h2>
+    <p>You agree to use LECFLOW solely for personal, educational productivity. You shall not use the Service for any illegal, harmful, or abusive activities, including but not limited to:</p>
+    <ul>
+      <li><strong>Academic Misconduct:</strong> Using LECFLOW to access unauthorized materials, notes, or recordings during proctored examinations, quizzes, or graded assessments in violation of your institution's academic integrity policies.</li>
+      <li><strong>Scraping & Automation:</strong> Extracting data, scraping course calendars, or downloading content through automated means (bots, spiders, scripts) to build competing databases or AI models.</li>
+      <li><strong>System Interference:</strong> Attempting to reverse engineer our source code, probe our network for vulnerabilities, or impose an unreasonable load on our Supabase infrastructure.</li>
+      <li><strong>Unauthorized Distribution:</strong> Using LECFLOW to illegally distribute, share, or pirate copyrighted educational materials, proprietary course content, or restricted recordings.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>3. Third-Party Integrations and External Links</h2>
+    <h3>Calendar Syncing</h3>
+    <p>LECFLOW functions by reading calendar links (e.g., public iCal/Google Calendar URLs) you provide. You are responsible for ensuring you have the right to access and sync the calendar URLs you input. We use Google Identity Services to request a short-lived, read-only access token. <strong>We never store your Google password or persistent access tokens.</strong></p>
+    
+    <h3>External Video & Recording Links</h3>
+    <p>LECFLOW <strong>does not host, store, or distribute</strong> any video recordings or lecture slides. We merely fetch and display hyperlinks (e.g., Google Drive, YouTube, LMS links) attached to your calendar events. We have no control over third-party platforms and are not responsible if a recording link is broken, removed by the instructor, restricted by IIT Madras, or if a third-party service experiences downtime.</p>
+  </div>
+
+  <div class="terms-section">
+    <h2>4. Intellectual Property and User Content</h2>
+    <ul>
+      <li><strong>Your Content:</strong> You retain full ownership of the Markdown notes, tags, and personal inputs you create within LECFLOW. We do not claim ownership over your personal study notes. We will never sell your notes or study data.</li>
+      <li><strong>Our Intellectual Property:</strong> The LECFLOW software, user interface, source code, and branding belong to Shubham Chaurasiya. You are granted a limited, non-exclusive, non-transferable license to use the Service.</li>
+      <li><strong>Institutional Content:</strong> All copyrights and intellectual property rights regarding the actual lecture videos, course materials, and syllabi remain the exclusive property of IIT Madras or the respective instructors.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>5. Fees and Subscriptions</h2>
+    <p>Currently, the core features of LECFLOW are provided completely free of charge. We reserve the right to introduce premium features or subscription tiers in the future. Any changes to the pricing model will be communicated in advance, and you will not be charged without your explicit consent.</p>
+  </div>
+
+  <div class="terms-section">
+    <h2>6. Warranty Disclaimer</h2>
+    <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SERVICES ARE PROVIDED ON AN “AS IS” AND “AS AVAILABLE” BASIS. LECFLOW MAKES NO WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, OR STATUTORY.</p>
+    <ul>
+      <li><strong>No Guarantee of Accuracy:</strong> We do not warrant that the synced calendar events, live Meet links, or recording URLs will be accurate, uninterrupted, or error-free.</li>
+      <li><strong>No Academic Advising:</strong> LECFLOW is a productivity tool and does not constitute official academic advising. You are solely responsible for verifying your exam schedules and course requirements with official institutional portals.</li>
+      <li><strong>Data Loss:</strong> While we implement autosave features for your notes, we do not guarantee that your data will never be lost. You are encouraged to periodically export your notes as a backup.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>7. Limitation of Liability</h2>
+    <p>TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, LECFLOW AND ITS CREATOR SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE SERVICE. This includes, but is not limited to, damages for missed lectures, lost study notes, academic penalties, or loss of data. Under no circumstances shall our total cumulative liability exceed the greater of ₹1,000 INR or the amount you have paid us in the past six (6) months.</p>
+  </div>
+
+  <div class="terms-section">
+    <h2>8. Termination and Suspension</h2>
+    <p>You may stop using the Service and delete your account at any time from your dashboard. We reserve the right to suspend or terminate your access to the Service, without prior notice, if we determine at our sole discretion that you have violated this Agreement, engaged in academic dishonesty using the tool, or attempted to compromise the security of our infrastructure.</p>
+  </div>
+
+  <div class="terms-section">
+    <h2>9. Governing Law and Dispute Resolution</h2>
+    <ul>
+      <li><strong>Applicable Law:</strong> This Agreement shall be governed by and construed in accordance with the laws of India, specifically applicable within the state of Uttar Pradesh.</li>
+      <li><strong>Amicable Resolution:</strong> Any dispute arising out of this Agreement shall first be resolved through amicable consultation. Please contact us via email to initiate a resolution.</li>
+      <li><strong>Jurisdiction:</strong> If the dispute remains unresolved after thirty (30) days, it shall be subject to the exclusive jurisdiction of the competent courts located in Uttar Pradesh, India.</li>
+    </ul>
+  </div>
+
+  <div class="terms-section">
+    <h2>10. Changes to this Agreement</h2>
+    <p>We may update this Agreement from time to time to reflect changes in the law, our features, or our security practices. We will update the "Last updated" date at the top of this page. Continued use of the Service after changes are posted constitutes acceptance of the new terms.</p>
+  </div>
+
+  <div class="terms-section">
+    <h2>11. Contact Information</h2>
+    <div class="contact-card">
+      <p>
+        If you have legal questions, want to report a security vulnerability, or need support regarding these terms, please email:<br><br>
+        <a href="mailto:xshubhamchaurasiya@gmail.com">xshubhamchaurasiya@gmail.com</a><br><br>
+        We aim to respond within 5 business days.
+      </p>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

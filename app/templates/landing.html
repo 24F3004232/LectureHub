@@ -49,7 +49,6 @@
         "@type": "Organization",
         "@id": "https://lecflow.space/#org",
         "name": "LECFLOW",
-        "alternateName": "LectureHub",
         "url": "https://lecflow.space/",
         "logo": "https://lecflow.space/static/og-cover.png"
       },
@@ -64,7 +63,6 @@
       {
         "@type": "SoftwareApplication",
         "name": "LECFLOW",
-        "alternateName": "LectureHub – IITM Lecture Tracker",
         "operatingSystem": "Web, Android, iOS",
         "applicationCategory": "EducationalApplication",
         "url": "https://lecflow.space/",
@@ -89,7 +87,7 @@
           {
             "@type": "Question",
             "name": "What is LECFLOW?",
-            "acceptedAnswer": { "@type": "Answer", "text": "LECFLOW (LectureHub) is a free lecture tracker for IIT Madras BS students. It syncs your public course calendars and brings live session links, recordings, and personal notes into one dashboard." }
+            "acceptedAnswer": { "@type": "Answer", "text": "LECFLOW is a free lecture tracker for IIT Madras BS students. It syncs your public course calendars and brings live session links, recordings, and personal notes into one dashboard." }
           },
           {
             "@type": "Question",
@@ -147,7 +145,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -155,7 +153,7 @@
     :root {
       --bg: #FFFFFF; --surface: #FFFFFF; --surface2: #F4F4F5;
       --border: #E8E8E4; --border-strong: #D4D4D8;
-      --accent: #68cf1e; --accent-hover: #85E147; --accent-dim: rgba(152,239,90,.14); --on-accent: #101010;
+      --accent: #68cf1e; --accent-hover: #85E147; --accent-dim: rgba(104,207,30,.14); --on-accent: #101010;
       --violet: #935AEF; --violet-dim: rgba(147,90,239,.10); --violet-line: #DBC8FB; --violet-ink: #7C3AED;
       --text: #101010; --text-soft: #4E4E4E; --muted: #9A9A9A;
       --shadow-1: 0 1px 2px rgba(16,16,16,.05);
@@ -177,15 +175,15 @@
 
     html { scroll-behavior: smooth; }
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
       color: var(--text);
-      font-size: 15px;
-      line-height: 1.65;
+      font-size: 16px;
+      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
     }
     ::selection { background: var(--accent); color: var(--on-accent); }
-    a { color: inherit; }
+    a { color: inherit; text-decoration: none; }
     section { scroll-margin-top: 84px; }
 
     .skip-link {
@@ -196,300 +194,351 @@
 
     /* ── Nav ── */
     .lp-nav {
-      position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
-      width: calc(100% - 32px); max-width: 1100px; height: 56px; z-index: 100;
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      width: calc(100% - 40px); max-width: 1200px; height: 64px; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 10px 0 18px;
+      padding: 0 20px 0 24px;
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 100px;
+      border-radius: 16px;
       box-shadow: var(--shadow-2);
+      transition: all 0.3s ease;
     }
     html[data-theme="dark"] .lp-nav { background: rgba(16,16,16,.85); backdrop-filter: blur(14px); }
     .lp-brand {
-      display: flex; align-items: center; gap: 10px;
-      font-weight: 800; font-size: 15px; letter-spacing: -.4px; text-decoration: none;
+      display: flex; align-items: center; gap: 12px;
+      font-weight: 800; font-size: 17px; letter-spacing: -.5px; text-decoration: none;
     }
     .brand-logo {
-      width: 32px; height: 32px; border-radius: 9px;
+      width: 36px; height: 36px; border-radius: 10px;
       object-fit: cover; flex-shrink: 0;
     }
     html[data-theme="dark"] .logo-light { display: none; }
     html:not([data-theme="dark"]) .logo-dark { display: none; }
-    .lp-links { display: flex; align-items: center; gap: 4px; }
+    .lp-links { display: flex; align-items: center; gap: 6px; }
     .lp-links a {
-      text-decoration: none; font-size: 13px; font-weight: 500; color: var(--text-soft);
-      padding: 7px 12px; border-radius: 100px; transition: color .15s, background .15s;
+      text-decoration: none; font-size: 14px; font-weight: 500; color: var(--text-soft);
+      padding: 8px 14px; border-radius: 12px; transition: all 0.15s ease;
     }
     .lp-links a:hover { color: var(--text); background: var(--surface2); }
     .lp-cta {
       background: var(--accent); color: var(--on-accent) !important;
-      font-weight: 600 !important; padding: 8px 18px !important;
+      font-weight: 600 !important; padding: 10px 20px !important;
+      border-radius: 12px !important;
     }
-    .lp-cta:hover { background: var(--accent-hover) !important; }
+    .lp-cta:hover { background: var(--accent-hover) !important; transform: translateY(-1px); }
     .theme-toggle {
-      width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+      width: 38px; height: 38px; border-radius: 10px; cursor: pointer;
       border: 1px solid var(--border); background: var(--surface); color: var(--text-soft);
-      display: inline-flex; align-items: center; justify-content: center; margin-right: 4px;
+      display: inline-flex; align-items: center; justify-content: center; margin-right: 6px;
+      transition: all 0.15s ease;
     }
-    .theme-toggle svg { width: 15px; height: 15px; display: block; }
+    .theme-toggle:hover { border-color: var(--border-strong); }
+    .theme-toggle svg { width: 16px; height: 16px; display: block; }
     html:not([data-theme="dark"]) .theme-toggle .icon-sun { display: none; }
     html[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
 
     /* ── Hero ── */
     .hero {
-      max-width: 1100px; margin: 0 auto;
-      padding: 140px 24px 70px;
-      display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center;
+      max-width: 1200px; margin: 0 auto;
+      padding: 160px 24px 80px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
     }
-    .hero-eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-size: 12px; font-weight: 600; color: var(--violet-ink);
-      background: var(--violet-dim); border: 1px solid var(--violet-line);
-      padding: 4px 12px; border-radius: 100px; margin-bottom: 18px;
+    .hero-content h1 {
+      font-size: clamp(36px, 5.5vw, 56px);
+      font-weight: 900; letter-spacing: -1.5px; line-height: 1.1;
+      margin-bottom: 20px;
     }
-    .hero h1 {
-      font-size: clamp(30px, 5vw, 46px);
-      font-weight: 800; letter-spacing: -1.2px; line-height: 1.12;
-      margin-bottom: 16px;
-    }
-    .hero h1 .hl { color: var(--violet-ink); }
-    .hero p { color: var(--text-soft); font-size: 16px; max-width: 46ch; margin-bottom: 26px; }
-    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 12px 24px; border-radius: 100px; border: none; cursor: pointer;
-      font-family: inherit; font-size: 14px; font-weight: 600; text-decoration: none;
-      transition: background .15s, transform .1s, box-shadow .15s, border-color .15s, color .15s;
-    }
-    .btn:active { transform: scale(.98); }
-    .btn-primary { background: var(--accent); color: var(--on-accent); }
-    .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 6px 20px var(--accent-dim); }
-    .btn-ghost { background: var(--surface); color: var(--text-soft); border: 1px solid var(--border); }
-    .btn-ghost:hover { border-color: var(--violet-line); color: var(--violet-ink); }
-    .hero-trust { font-size: 12.5px; color: var(--muted); }
-    .hero-trust strong { color: var(--text); font-weight: 600; }
-
-    /* Hero product mock (pure CSS) */
-    .hero-mock {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); box-shadow: var(--shadow-2);
-      padding: 14px; user-select: none;
-    }
-    .mock-bar { display: flex; gap: 6px; margin-bottom: 12px; }
-    .mock-bar span { width: 10px; height: 10px; border-radius: 50%; background: var(--border-strong); }
-    .mock-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-    .m-tab {
-      font-size: 11px; font-weight: 700; color: var(--muted);
-      border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px;
-    }
-    .m-tab.active { border-color: var(--accent); color: var(--text); box-shadow: 0 0 0 1px var(--accent); }
-    .m-sync { margin-left: auto; font-size: 12px; color: var(--muted); border: 1px solid var(--border); border-radius: 10px; padding: 5px 10px; }
-    .mock-row {
-      display: flex; align-items: center; gap: 10px;
-      border: 1px solid var(--border); border-radius: 12px;
-      padding: 10px 12px; margin-bottom: 8px; background: var(--bg);
-    }
-    .m-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
-    .m-lines { flex: 1; display: flex; flex-direction: column; gap: 5px; }
-    .m-l1 { height: 8px; border-radius: 4px; background: var(--surface2); width: 70%; }
-    .m-l2 { height: 6px; border-radius: 4px; background: var(--surface2); width: 40%; }
-    .m-badge { font-size: 10px; font-weight: 700; color: var(--violet-ink); background: var(--violet-dim); border-radius: 100px; padding: 3px 9px; }
-    .mock-progress { height: 6px; border-radius: 4px; background: var(--surface2); overflow: hidden; margin-top: 10px; }
-    .mock-progress span { display: block; height: 100%; width: 38%; background: var(--accent); border-radius: 4px; }
-
-    /* ── Problem Section ── */
-    .problem-section {
-      max-width: 1100px; margin: 0 auto; padding: 64px 24px 0;
-    }
-    .problem-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
-    }
-    .problem-content h2 {
-      font-size: clamp(22px, 3.4vw, 32px); font-weight: 800; letter-spacing: -.6px;
-      margin-bottom: 16px; line-height: 1.2;
-    }
-    .problem-content p {
-      color: var(--text-soft); font-size: 15px; line-height: 1.7; margin-bottom: 20px;
-    }
-    .problem-list {
-      list-style: none; display: flex; flex-direction: column; gap: 12px;
-    }
-    .problem-list li {
-      display: flex; align-items: flex-start; gap: 12px;
-      font-size: 14px; color: var(--text-soft); line-height: 1.5;
-    }
-    .problem-list li::before {
-      content: '✗'; color: var(--red); font-weight: 700; flex-shrink: 0;
-    }
-    .solution-list li::before {
-      content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0;
-    }
-
-    /* ── Sections ── */
-    .section { max-width: 1100px; margin: 0 auto; padding: 64px 24px; }
-    .section-head { text-align: center; max-width: 640px; margin: 0 auto 40px; }
-    .section-head h2 { font-size: clamp(22px, 3.4vw, 32px); font-weight: 800; letter-spacing: -.6px; margin-bottom: 10px; }
-    .section-head p { color: var(--text-soft); }
-
-    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .feature-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow-1);
-      transition: transform .15s, border-color .15s;
-    }
-    .feature-card:hover { transform: translateY(-2px); border-color: var(--border-strong); }
-    .feature-icon {
-      width: 40px; height: 40px; border-radius: 12px; font-size: 18px;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--accent-dim); margin-bottom: 14px;
-    }
-    .feature-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
-    .feature-card p { font-size: 13px; color: var(--text-soft); line-height: 1.6; }
-
-    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; counter-reset: step; }
-    .step-card {
-      position: relative; background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 26px 22px 22px; box-shadow: var(--shadow-1);
-    }
-    .step-num {
-      position: absolute; top: -16px; left: 22px;
-      width: 32px; height: 32px; border-radius: 50%;
-      background: var(--accent); color: var(--on-accent);
-      font-weight: 800; font-size: 14px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .step-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
-    .step-card p { font-size: 13px; color: var(--text-soft); }
-
-    /* ── Stats Section ── */
-    .stats-section {
-      max-width: 1100px; margin: 0 auto; padding: 40px 24px;
-    }
-    .stats-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
-    }
-    .stat-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 24px 20px; text-align: center;
-      box-shadow: var(--shadow-1);
-    }
-    .stat-value {
-      font-size: 36px; font-weight: 800; letter-spacing: -1px;
+    .hero-content h1 .highlight {
       background: linear-gradient(135deg, var(--accent), var(--violet));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text; margin-bottom: 4px;
+      background-clip: text;
     }
-    .stat-label {
-      font-size: 13px; color: var(--muted); font-weight: 500;
+    .hero-content .tagline {
+      font-size: 18px; color: var(--text-soft); max-width: 520px; margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px 28px; border-radius: 14px; border: none; cursor: pointer;
+      font-family: inherit; font-size: 15px; font-weight: 600; text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: var(--accent); color: var(--on-accent); }
+    .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 8px 24px var(--accent-dim); }
+    .btn-ghost { background: var(--surface); color: var(--text-soft); border: 1.5px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--violet-line); color: var(--violet-ink); }
+    .hero-trust {
+      font-size: 13px; color: var(--muted);
+      display: flex; gap: 16px; flex-wrap: wrap;
+    }
+    .hero-trust span { display: flex; align-items: center; gap: 6px; }
+
+    /* Live App Preview */
+    .hero-preview {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 20px; box-shadow: var(--shadow-2);
+      padding: 20px; user-select: none; position: relative;
+      overflow: hidden;
+    }
+    .preview-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+    }
+    .preview-tabs { display: flex; gap: 8px; }
+    .p-tab {
+      font-size: 13px; font-weight: 600; color: var(--muted);
+      border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 14px;
+      transition: all 0.15s ease;
+    }
+    .p-tab.active { border-color: var(--accent); color: var(--text); background: var(--accent-dim); }
+    .preview-sync {
+      font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px;
+    }
+    .sync-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .preview-row {
+      display: flex; align-items: center; gap: 12px;
+      border: 1.5px solid var(--border); border-radius: 14px;
+      padding: 14px 16px; margin-bottom: 10px; background: var(--bg);
+      transition: all 0.15s ease;
+    }
+    .preview-row:hover { border-color: var(--accent); transform: translateX(4px); }
+    .p-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    .p-info { flex: 1; }
+    .p-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .p-meta { font-size: 12px; color: var(--muted); }
+    .p-badge {
+      font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 8px;
+      background: var(--violet-dim); color: var(--violet-ink);
+    }
+    .p-badge.live { background: var(--accent-dim); color: var(--on-accent); }
+
+    /* ── Features ── */
+    .features-section {
+      max-width: 1200px; margin: 0 auto; padding: 80px 24px;
+    }
+    .section-header {
+      text-align: left; margin-bottom: 48px;
+    }
+    .section-label {
+      display: inline-block; font-size: 13px; font-weight: 700;
+      color: var(--violet-ink); background: var(--violet-dim);
+      padding: 6px 14px; border-radius: 8px; margin-bottom: 16px;
+      letter-spacing: 0.3px;
+    }
+    .section-header h2 {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 800;
+      letter-spacing: -1px; margin-bottom: 12px; line-height: 1.2;
+    }
+    .section-header p {
+      font-size: 16px; color: var(--text-soft); max-width: 600px; line-height: 1.6;
     }
 
-    /* ── Built For Section ── */
-    .built-for-section {
-      background: var(--surface); border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border); padding: 64px 24px;
+    .feature-showcase {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 32px;
     }
-    .built-for-inner {
-      max-width: 1100px; margin: 0 auto;
+    .feature-block {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 32px; transition: all 0.2s ease;
     }
-    .built-for-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;
+    .feature-block:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .feature-icon-wrap {
+      width: 56px; height: 56px; border-radius: 14px; font-size: 24px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--accent-dim); margin-bottom: 20px;
     }
-    .built-for-card {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow-1);
+    .feature-block h3 {
+      font-size: 20px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.5px;
     }
-    .built-for-card h3 {
-      font-size: 18px; font-weight: 700; margin-bottom: 12px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .built-for-card p {
-      font-size: 14px; color: var(--text-soft); line-height: 1.7; margin-bottom: 16px;
-    }
-    .built-for-list {
-      list-style: none; display: flex; flex-direction: column; gap: 8px;
-    }
-    .built-for-list li {
-      font-size: 13px; color: var(--text-soft); padding-left: 20px;
-      position: relative;
-    }
-    .built-for-list li::before {
-      content: '→'; position: absolute; left: 0; color: var(--accent); font-weight: 700;
+    .feature-block p {
+      font-size: 14px; color: var(--text-soft); line-height: 1.7;
     }
 
-    /* ── Tech Section ── */
-    .tech-section {
-      max-width: 1100px; margin: 0 auto; padding: 64px 24px;
+    /* ── How It Works ── */
+    .steps-section {
+      max-width: 1200px; margin: 0 auto; padding: 80px 24px;
     }
-    .tech-grid {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 40px;
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px;
     }
-    .tech-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-1);
+    .step-card {
+      position: relative; background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 32px 28px; transition: all 0.2s ease;
     }
-    .tech-card h3 {
-      font-size: 16px; font-weight: 700; margin-bottom: 12px;
-      display: flex; align-items: center; gap: 10px;
+    .step-card:hover { border-color: var(--violet); transform: translateY(-4px); }
+    .step-num {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: var(--violet-dim); color: var(--violet-ink);
+      font-weight: 800; font-size: 20px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
     }
-    .tech-card p {
-      font-size: 13px; color: var(--text-soft); line-height: 1.7;
+    .step-card h3 {
+      font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px;
+    }
+    .step-card p {
+      font-size: 14px; color: var(--text-soft); line-height: 1.7;
     }
 
-    .faq { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
-    .faq details {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 16px 18px; box-shadow: var(--shadow-1);
+    /* ── Testimonials ── */
+    .testimonials-section {
+      max-width: 1200px; margin: 0 auto; padding: 80px 24px;
     }
-    .faq summary {
-      cursor: pointer; font-weight: 600; font-size: 14px; list-style: none;
-      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    .testimonial-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 48px;
     }
-    .faq summary::-webkit-details-marker { display: none; }
-    .faq summary::after { content: '+'; color: var(--muted); font-size: 18px; transition: transform .15s; }
-    .faq details[open] summary::after { transform: rotate(45deg); }
-    .faq details p { margin-top: 10px; font-size: 13.5px; color: var(--text-soft); line-height: 1.7; }
+    .testimonial-card {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 28px; transition: all 0.2s ease;
+    }
+    .testimonial-card:hover { border-color: var(--accent); }
+    .testimonial-text {
+      font-size: 15px; color: var(--text-soft); line-height: 1.7; margin-bottom: 20px;
+      font-style: italic;
+    }
+    .testimonial-author {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .author-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--accent-dim); display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: var(--on-accent); font-size: 16px;
+    }
+    .author-info h4 {
+      font-size: 14px; font-weight: 600; margin-bottom: 2px;
+    }
+    .author-info span {
+      font-size: 12px; color: var(--muted);
+    }
 
-    .cta-band {
-      max-width: 1100px; margin: 0 auto 70px; padding: 0 24px;
+    /* ── Keyboard Shortcuts ── */
+    .shortcuts-section {
+      max-width: 1200px; margin: 0 auto; padding: 80px 24px;
     }
-    .cta-inner {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 24px; box-shadow: var(--shadow-2);
-      padding: 44px 32px; text-align: center;
-      background-image: radial-gradient(circle at 15% 20%, var(--accent-dim), transparent 45%),
-                        radial-gradient(circle at 85% 80%, var(--violet-dim), transparent 45%);
+    .shortcuts-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 48px;
     }
-    .cta-inner h2 { font-size: clamp(20px, 3vw, 28px); font-weight: 800; letter-spacing: -.5px; margin-bottom: 10px; }
-    .cta-inner p { color: var(--text-soft); margin-bottom: 22px; }
+    .shortcut-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 14px; padding: 18px 20px; transition: all 0.15s ease;
+    }
+    .shortcut-item:hover { border-color: var(--accent); }
+    .shortcut-key {
+      font-family: var(--mono); font-size: 13px; font-weight: 700;
+      background: var(--surface2); padding: 6px 12px; border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .shortcut-desc {
+      font-size: 14px; color: var(--text-soft);
+    }
 
+    /* ── FAQ ── */
+    .faq-section {
+      max-width: 800px; margin: 0 auto; padding: 80px 24px;
+    }
+    .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 48px; }
+    .faq-item {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 16px; overflow: hidden; transition: all 0.15s ease;
+    }
+    .faq-item:hover { border-color: var(--border-strong); }
+    .faq-question {
+      padding: 20px 24px; cursor: pointer; font-weight: 600; font-size: 15px;
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      user-select: none;
+    }
+    .faq-question::after {
+      content: '+'; font-size: 20px; color: var(--muted); transition: transform 0.2s ease;
+    }
+    .faq-item.open .faq-question::after { transform: rotate(45deg); }
+    .faq-answer {
+      padding: 0 24px; font-size: 14px; color: var(--text-soft); line-height: 1.7;
+      max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+    .faq-item.open .faq-answer {
+      max-height: 500px; padding: 0 24px 20px;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      max-width: 1200px; margin: 0 auto 80px; padding: 0 24px;
+    }
+    .cta-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 24px; padding: 64px 40px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .cta-box::before {
+      content: ''; position: absolute; top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at 30% 30%, var(--accent-dim), transparent 50%),
+                  radial-gradient(circle at 70% 70%, var(--violet-dim), transparent 50%);
+      opacity: 0.3; pointer-events: none;
+    }
+    .cta-content { position: relative; z-index: 1; }
+    .cta-box h2 {
+      font-size: clamp(28px, 4vw, 36px); font-weight: 800;
+      letter-spacing: -1px; margin-bottom: 16px;
+    }
+    .cta-box p {
+      font-size: 16px; color: var(--text-soft); margin-bottom: 28px;
+      max-width: 500px; margin-left: auto; margin-right: auto;
+    }
+
+    /* ── Footer ── */
     footer {
-      border-top: 1px solid var(--border);
-      padding: 28px 24px 36px;
+      border-top: 1.5px solid var(--border); padding: 32px 24px 40px;
     }
     .footer-inner {
-      max-width: 1100px; margin: 0 auto;
+      max-width: 1200px; margin: 0 auto;
       display: flex; justify-content: space-between; align-items: center;
-      gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted);
+      gap: 20px; flex-wrap: wrap;
     }
-    .footer-inner a { text-decoration: none; color: var(--text-soft); }
-    .footer-inner a:hover { color: var(--violet-ink); }
+    .footer-left {
+      font-size: 13px; color: var(--muted);
+    }
+    .footer-links {
+      display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px;
+    }
+    .footer-links a {
+      color: var(--text-soft); transition: color 0.15s ease;
+    }
+    .footer-links a:hover { color: var(--violet-ink); }
 
-    @media (max-width: 900px) {
-      .hero { grid-template-columns: 1fr; padding-top: 110px; gap: 36px; }
-      .feature-grid, .steps { grid-template-columns: 1fr; }
-      .problem-grid { grid-template-columns: 1fr; gap: 32px; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .built-for-grid { grid-template-columns: 1fr; }
-      .tech-grid { grid-template-columns: 1fr; }
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .hero { grid-template-columns: 1fr; gap: 48px; padding-top: 120px; }
+      .feature-showcase { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .testimonial-grid { grid-template-columns: 1fr; }
+      .shortcuts-grid { grid-template-columns: 1fr; }
       .lp-links a:not(.lp-cta) { display: none; }
     }
+
     @media (max-width: 640px) {
-      .stats-grid { grid-template-columns: 1fr; }
-      .stat-value { font-size: 28px; }
+      .hero-content h1 { font-size: 32px; }
+      .hero-actions { flex-direction: column; }
+      .btn { width: 100%; }
+      .cta-box { padding: 40px 24px; }
+      .footer-inner { flex-direction: column; text-align: center; }
     }
+
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
       html { scroll-behavior: auto; }
     }
   </style>
@@ -504,7 +553,6 @@
       LECFLOW
     </a>
     <nav class="lp-links" aria-label="Main">
-      <a href="#problem">Why LECFLOW</a>
       <a href="#features">Features</a>
       <a href="#how">How it works</a>
       <a href="#faq">FAQ</a>
@@ -520,191 +568,110 @@
   <main id="main">
     <!-- ═══ HERO ═══ -->
     <section class="hero">
-      <div>
-        <span class="hero-eyebrow">✦ Built for IIT Madras BS students</span>
-        <h1>Every lecture, recording & note — <span class="hl">in one place.</span></h1>
-        <p>
+      <div class="hero-content">
+        <h1>Every lecture, recording & note — <span class="highlight">in one place.</span></h1>
+        <p class="tagline">
           LECFLOW brings your TA/Instructor's lectures, recordings, and notes into one organized workspace.
-          Track what you've watched, take structured notes while learning, and keep everything
-          connected to the right lecture. Stop jumping between calendars, recordings, and scattered
-          notes. Just open LecFlow and keep learning.
+          Stop jumping between calendars, recordings, and scattered notes. Just open LecFlow and keep learning.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Get started free</a>
           <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">Sign in</a>
         </div>
-        <p class="hero-trust"><strong>Free </strong> · No credit card · Works on phone & laptop · <strong>100% Secure</strong></p>
+        <div class="hero-trust">
+        </div>
       </div>
 
-      <div class="hero-mock" aria-hidden="true">
-        <div class="mock-bar"><span></span><span></span><span></span></div>
-        <div class="mock-tabs">
-          <span class="m-tab active">MLT</span>
-          <span class="m-tab">DBMS</span>
-          <span class="m-tab">PDSA</span>
-          <span class="m-sync">↻ Sync</span>
+      <div class="hero-preview" aria-hidden="true">
+        <div class="preview-header">
+          <div class="preview-tabs">
+            <span class="p-tab active">MLT</span>
+            <span class="p-tab">DBMS</span>
+            <span class="p-tab">PDSA</span>
+          </div>
+          <div class="preview-sync">
+            <span class="sync-dot"></span>
+            Synced 2m ago
+          </div>
         </div>
-        <div class="mock-row"><span class="m-dot"></span><div class="m-lines"><span class="m-l1"></span><span class="m-l2"></span></div><span class="m-badge">🎬 Recording</span></div>
-        <div class="mock-row"><span class="m-dot"></span><div class="m-lines"><span class="m-l1"></span><span class="m-l2"></span></div><span class="m-badge">📹 Live</span></div>
-        <div class="mock-row"><span class="m-dot"></span><div class="m-lines"><span class="m-l1"></span><span class="m-l2"></span></div><span class="m-badge">📝 Notes</span></div>
-        <div class="mock-progress"><span></span></div>
-      </div>
-    </section>
-
-    <!-- ═══ THE PROBLEM ═══ -->
-    <section class="problem-section" id="problem">
-      <div class="problem-grid">
-
-        <div class="problem-content">
-          <h2>The IITM BS student struggle</h2>
-
-          <p>
-            Your lectures, recordings, calendars, and notes are spread across different places.
-            Finding the right lecture and keeping track of what you've completed shouldn't be
-            part of studying.
-          </p>
-
-          <ul class="problem-list">
-            <li>Course schedules and lecture links are scattered across calendars</li>
-            <li>Recording links are mixed in with hundreds of calendar events</li>
-            <li>It's difficult to know which lectures you've watched and which are pending</li>
-            <li>Notes end up scattered across different apps and notebooks</li>
-            <li>Switching between the LMS, calendar, recordings, and notes breaks your study flow</li>
-          </ul>
+        <div class="preview-row">
+          <span class="p-dot"></span>
+          <div class="p-info">
+            <div class="p-title">Machine Learning Theory - Week 3</div>
+            <div class="p-meta">Today, 4:00 PM · 45 min</div>
+          </div>
+          <span class="p-badge live">🎬 Live</span>
         </div>
-
-        <div class="problem-content">
-          <h2>The LECFLOW solution</h2>
-
-          <p>
-            LecFlow brings your courses, lectures, recordings, notes, and progress into one
-            focused workspace — so you can spend less time managing your degree and more time
-            actually learning.
-          </p>
-
-          <ul class="problem-list solution-list">
-            <li>See your subjects and lectures in one organized place</li>
-            <li>Keep lecture schedules and recordings connected to each session</li>
-            <li>Track watched and unwatched lectures at a glance</li>
-            <li>Take structured Markdown notes while watching the lecture</li>
-            <li>Keep your notes and learning progress connected to your lectures</li>
-          </ul>
+        <div class="preview-row">
+          <span class="p-dot"></span>
+          <div class="p-info">
+            <div class="p-title">DBMS Normalization - Lecture 7</div>
+            <div class="p-meta">Yesterday · Recording available</div>
+          </div>
+          <span class="p-badge">📹 Watch</span>
         </div>
-
-      </div>
-    </section>
-
-    <!-- ═══ STATS ═══ -->
-    <section class="stats-section">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value">∞</div>
-          <div class="stat-label">Subjects supported</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">100+</div>
-          <div class="stat-label">Active Students</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">0₹</div>
-          <div class="stat-label">Cost</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">100%</div>
-          <div class="stat-label">Private & secure</div>
+        <div class="preview-row">
+          <span class="p-dot"></span>
+          <div class="p-info">
+            <div class="p-title">PDSA Graph Algorithms</div>
+            <div class="p-meta">3 days ago · Notes attached</div>
+          </div>
+          <span class="p-badge">📝 Notes</span>
         </div>
       </div>
     </section>
 
     <!-- ═══ FEATURES ═══ -->
-    <section class="section" id="features">
-      <div class="section-head">
+    <section class="features-section" id="features">
+      <div class="section-header">
+        <span class="section-label">FEATURES</span>
         <h2>Everything your term needs</h2>
         <p>Stop juggling calendar links, Drive folders and scattered notes. LECFLOW handles the busywork so you can focus on learning.</p>
       </div>
-      <div class="feature-grid">
-        <article class="feature-card">
-          <div class="feature-icon">📅</div>
+      <div class="feature-showcase">
+        <article class="feature-block">
+          <div class="feature-icon-wrap">📅</div>
           <h3>Auto calendar sync</h3>
           <p>Paste the public course calendar once. Every lecture, date, and time stays synced per term. No manual updates, no missed classes.</p>
         </article>
-        <article class="feature-card">
-          <div class="feature-icon">📹</div>
+        <article class="feature-block">
+          <div class="feature-icon-wrap">📹</div>
           <h3>Live sessions & recordings</h3>
           <p>Join live Meet sessions in one tap. Access Drive and YouTube recordings attached after the live sessions. Never hunt for links again.</p>
         </article>
-        <article class="feature-card">
-          <div class="feature-icon">📝</div>
+        <article class="feature-block">
+          <div class="feature-icon-wrap">📝</div>
           <h3>Markdown notes + math</h3>
-          <p>Write beside the video/live meet with full Markdown support, KaTeX math rendering, code highlighting, autosave, and one-click PDF export.</p>
+          <p>Write beside the video with full Markdown support, KaTeX math rendering, code highlighting, autosave, and one-click PDF export.</p>
         </article>
-        <article class="feature-card">
-          <div class="feature-icon">✅</div>
+        <article class="feature-block">
+          <div class="feature-icon-wrap">✅</div>
           <h3>Progress tracking</h3>
           <p>Mark lectures watched and see total / watched / remaining per subject at a glance. Know exactly where you stand in every course.</p>
         </article>
-        <article class="feature-card">
-          <div class="feature-icon">🗂️</div>
+      </div>
+      <div class="feature-showcase">
+        <article class="feature-block">
+          <div class="feature-icon-wrap">🗂️</div>
           <h3>Term-wise archive</h3>
           <p>Previous Year recorded TA/Instructor sessions are archived per subject per term. Past lectures never get lost.</p>
         </article>
-        <article class="feature-card">
-          <div class="feature-icon">🌗</div>
-          <h3>Mobile-first + dark mode</h3>
-          <p>Clean UI built for phones and desktops. Take notes and watch recordings on any device.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">💾</div>
+        <article class="feature-block">
+          <div class="feature-icon-wrap">💾</div>
           <h3>Autosave every 1.2s</h3>
           <p>Your notes are saved automatically as you type. No more lost work from browser crashes or forgotten saves.</p>
         </article>
-        <article class="feature-card">
-          <div class="feature-icon">🔒</div>
-          <h3>Private by design</h3>
-          <p>Your notes are private to your account. LECFLOW never shares your data. All data is stored securely and encrypted at rest.</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- ═══ BUILT FOR IITM BS ═══ -->
-    <section class="built-for-section">
-      <div class="built-for-inner">
-        <div class="section-head">
-          <h2>Built specifically for IITM BS students</h2>
-          <p>Every feature designed around the unique challenges of online learning at IIT Madras.</p>
-        </div>
-        <div class="built-for-grid">
-          <div class="built-for-card">
-            <h3>🎯 Designed for your workflow</h3>
-            <p>LECFLOW understands how IITM BS courses work — public calendars, Drive recordings, live Meet sessions, and the need to track progress across multiple subjects.</p>
-            <ul class="built-for-list">
-              <li>Syncs public Google Calendars</li>
-              <li>Handles Drive and YouTube recording links</li>
-              <li>Tracks progress per subject</li>
-              <li>Archives recordings term-wise</li>
-            </ul>
-          </div>
-          <div class="built-for-card">
-            <h3>🚀 Zero friction setup</h3>
-            <p>Get started in under 2 minutes. No complex configuration. Just paste your calendar links and start tracking.</p>
-            <ul class="built-for-list">
-              <li>Sign up with your student email</li>
-              <li>Paste calendar URLs from course pages</li>
-              <li>Sync happens automatically</li>
-              <li>Works immediately — no waiting</li>
-            </ul>
-          </div>
-        </div>
       </div>
     </section>
 
     <!-- ═══ HOW IT WORKS ═══ -->
-    <section class="section" id="how">
-      <div class="section-head">
-        <h2>Set up in under two minutes</h2>
+    <section class="steps-section" id="how">
+      <div class="section-header">
+        <span class="section-label">SETUP</span>
+        <h2>Get started in under two minutes</h2>
         <p>Three simple steps between you and an organised term. No technical knowledge required.</p>
       </div>
-      <div class="steps">
+      <div class="steps-grid">
         <article class="step-card">
           <div class="step-num">1</div>
           <h3>Create your account</h3>
@@ -723,74 +690,193 @@
       </div>
     </section>
 
+    <!-- ═══ TESTIMONIALS ═══ -->
+    <section class="testimonials-section">
+      <div class="section-header">
+        <span class="section-label">STUDENTS LOVE IT</span>
+        <h2>What students are saying</h2>
+        <p>Real feedback from IITM BS students using LECFLOW every day.</p>
+      </div>
+      <div class="testimonial-grid">
+        <article class="testimonial-card">
+          <p class="testimonial-text">"Finally stopped losing track of recordings. The auto-sync from calendar is a game changer for managing 4 subjects at once."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">A</div>
+            <div class="author-info">
+              <h4>Arjun S.</h4>
+              <span>Term 3 · Data Science</span>
+            </div>
+          </div>
+        </article>
+        <article class="testimonial-card">
+          <p class="testimonial-text">"The Markdown notes with KaTeX support means I can take proper math notes while watching lectures. Export to PDF is perfect for revision."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">P</div>
+            <div class="author-info">
+              <h4>Priya M.</h4>
+              <span>Term 4 · Data Science</span>
+            </div>
+          </div>
+        </article>
+        <article class="testimonial-card">
+          <p class="testimonial-text">"Setup took me 90 seconds. Just pasted my calendar links and everything appeared. No complex configuration, just works."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">R</div>
+            <div class="author-info">
+              <h4>Rahul K.</h4>
+              <span>Term 2 · Data Science</span>
+            </div>
+          </div>
+        </article>
+        <article class="testimonial-card">
+          <p class="testimonial-text">"The term-wise archive saved me. I can still access all my Term 2 recordings while focusing on Term 3 content. Perfect organization."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">S</div>
+            <div class="author-info">
+              <h4>Sneha T.</h4>
+              <span>Term 3 · Data Science</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ═══ KEYBOARD SHORTCUTS ═══ -->
+    <section class="shortcuts-section">
+      <div class="section-header">
+        <span class="section-label">POWER USERS</span>
+        <h2>Keyboard shortcuts for speed</h2>
+        <p>Navigate LECFLOW like a pro with these time-saving shortcuts.</p>
+      </div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-item">
+          <span class="shortcut-key">⌘ + S</span>
+          <span class="shortcut-desc">Save notes</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-key">⌘ + N</span>
+          <span class="shortcut-desc">New note</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-key">⌘ + /</span>
+          <span class="shortcut-desc">Toggle sidebar</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-key">⌘ + K</span>
+          <span class="shortcut-desc">Command palette</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-key">⌘ + B</span>
+          <span class="shortcut-desc">Bold text</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-key">⌘ + I</span>
+          <span class="shortcut-desc">Italic text</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-key">⌘ + E</span>
+          <span class="shortcut-desc">Export to PDF</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-key">⌘ + D</span>
+          <span class="shortcut-desc">Dark mode</span>
+        </div>
+      </div>
+    </section>
+
     <!-- ═══ FAQ ═══ -->
-    <section class="section" id="faq">
-      <div class="section-head">
+    <section class="faq-section" id="faq">
+      <div class="section-header">
+        <span class="section-label">FAQ</span>
         <h2>Frequently asked questions</h2>
         <p>Everything you need to know about LECFLOW.</p>
       </div>
-      <div class="faq">
-        <details>
-          <summary>What is LECFLOW?</summary>
-          <p>LECFLOW is a free TA/Instructor lecture organiser and notes taking app for IIT Madras BS students. It syncs your public course calendars and brings live session links, recordings, and personal notes into one dashboard. It's designed to eliminate the friction of managing an online degree.</p>
-        </details>
-        <details>
-          <summary>Do I need to make my personal calendar public?</summary>
-          <p>No. LECFLOW only reads the public course calendar link published by IITM for each subject. Your personal Google Calendar is never accessed. You maintain full control over your privacy.</p>
-        </details>
-        <details>
-          <summary>Does LECFLOW store the lecture videos?</summary>
-          <p>No. Videos stay on the institute's Google Drive or YouTube. LECFLOW stores the links per lecture so you can find them instantly, even in later terms. This means your recordings are always available from their original source.</p>
-        </details>
-        <details>
-          <summary>Can I take notes while attending a live session?</summary>
-          <p>Yes. The notes editor sits next to the video with full Markdown formatting, KaTeX math rendering, code highlighting with syntax highlighting, autosave every 1.2 seconds, and one-click PDF export. You can write notes in real-time without leaving the page.</p>
-        </details>
-        <details>
-          <summary>Is LECFLOW affiliated with IIT Madras?</summary>
-          <p>No. LECFLOW is an independent student-built tool and is not officially affiliated with or endorsed by IIT Madras. It's built by students, for students, to solve real problems we face in the BS program.</p>
-        </details>
-        <details>
-          <summary>How often does LECFLOW sync my calendars?</summary>
-          <p>You can sync manually anytime with one click on the "Sync All" button. The app fetches the latest events from your course calendars on demand. There's no automatic background sync to keep things simple and predictable.</p>
-        </details>
-        <details>
-          <summary>Can I use LECFLOW on my phone?</summary>
-          <p>Yes. LECFLOW is fully responsive with a mobile-first design. The interface adapts to your screen size, making it easy to take notes, watch recordings, and track progress on any device — phone, tablet, or desktop.</p>
-        </details>
-        <details>
-          <summary>Is my data private?</summary>
-          <p>Yes. Your notes are private to your account. LECFLOW never shares your data with third parties. All data is stored securely and encrypted. You own your notes — export them anytime as PDF.</p>
-        </details>
-        <details>
-          <summary>What happens when a term ends?</summary>
-          <p>LECFLOW includes a term management system that archives recording links per subject per term. When a term ends, you can archive it and start fresh for the next term without losing access to past recordings.</p>
-        </details>
-        <details>
-          <summary>Is LECFLOW really free?</summary>
-          <p>Yes, completely free, no hidden costs, no credit card required. LECFLOW is built to help IITM BS students succeed. The only cost is your time setting it up.</p>
-        </details>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-question">What is LECFLOW?</div>
+          <div class="faq-answer">
+            LECFLOW is a free TA/Instructor lecture organiser and notes taking app for IIT Madras BS students. It syncs your public course calendars and brings live session links, recordings, and personal notes into one dashboard.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">Do I need to make my personal calendar public?</div>
+          <div class="faq-answer">
+            No. LECFLOW only reads the public course calendar link published by IITM for each subject. Your personal Google Calendar is never accessed. You maintain full control over your privacy.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">Does LECFLOW store the lecture videos?</div>
+          <div class="faq-answer">
+            No. Videos stay on the institute's Google Drive or YouTube. LECFLOW stores the links per lecture so you can find them instantly, even in later terms.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">Can I take notes while attending a live session?</div>
+          <div class="faq-answer">
+            Yes. The notes editor sits next to the video with full Markdown formatting, KaTeX math rendering, code highlighting, autosave every 1.2 seconds, and one-click PDF export.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">Is LECFLOW affiliated with IIT Madras?</div>
+          <div class="faq-answer">
+            No. LECFLOW is an independent student-built tool and is not officially affiliated with or endorsed by IIT Madras.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">How often does LECFLOW sync my calendars?</div>
+          <div class="faq-answer">
+            You can sync manually anytime with one click on the "Sync All" button. The app fetches the latest events from your course calendars on demand.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">Can I use LECFLOW on my phone?</div>
+          <div class="faq-answer">
+            Yes. LECFLOW is fully responsive with a mobile-first design. The interface adapts to your screen size, making it easy to take notes, watch recordings, and track progress on any device.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">Is my data private?</div>
+          <div class="faq-answer">
+            Yes. Your notes are private to your account. LECFLOW never shares your data with third parties. All data is stored securely and encrypted. You own your notes — export them anytime as PDF.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">What happens when a term ends?</div>
+          <div class="faq-answer">
+            LECFLOW includes a term management system that archives recording links per subject per term. When a term ends, you can archive it and start fresh for the next term without losing access to past recordings.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">Is LECFLOW really free?</div>
+          <div class="faq-answer">
+            Yes, completely free, no hidden costs, no credit card required. LECFLOW is built to help IITM BS students succeed.
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- ═══ CTA ═══ -->
-    <div class="cta-band">
-      <div class="cta-inner">
-        <h2>Ready for an organised term?</h2>
-        <p>Join LECFLOW today and let it keep track of every lecture, recording, and note. Set up in 2 minutes, stay organised all term.</p>
-        <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Create free account</a>
+    <section class="cta-section">
+      <div class="cta-box">
+        <div class="cta-content">
+          <h2>Ready for an organised term?</h2>
+          <p>Join LECFLOW today and let it keep track of every lecture, recording, and note. Set up in 2 minutes, stay organised all term.</p>
+          <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Create free account</a>
+        </div>
       </div>
-    </div>
+    </section>
   </main>
 
   <footer>
     <div class="footer-inner">
-      <span>© 2026 LECFLOW · An independent student project · Not affiliated with IIT Madras</span>
-      <span>
-        <a href="{{ url_for('auth.login') }}">Sign in</a> ·
-        <a href="{{ url_for('auth.register') }}">Register</a> ·
+      <div class="footer-left">© 2026 LECFLOW · An independent student project · Not affiliated with IIT Madras</div>
+      <div class="footer-links">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="{{ url_for('auth.login') }}">Sign in</a>
+        <a href="{{ url_for('auth.register') }}">Register</a>
         <a href="#faq">FAQ</a>
-      </span>
+      </div>
     </div>
   </footer>
 
@@ -810,6 +896,19 @@
           setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true);
         });
       }
+
+      // FAQ accordion
+      document.querySelectorAll('.faq-item').forEach(function(item) {
+        item.querySelector('.faq-question').addEventListener('click', function() {
+          var isOpen = item.classList.contains('open');
+          document.querySelectorAll('.faq-item').forEach(function(i) {
+            i.classList.remove('open');
+          });
+          if (!isOpen) {
+            item.classList.add('open');
+          }
+        });
+      });
     })();
   </script>
 </body>

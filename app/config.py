@@ -26,6 +26,7 @@ class Config:
     SUPABASE_URL = os.environ.get('SUPABASE_URL')
     SUPABASE_ANON_KEY = os.environ.get('SUPABASE_ANON_KEY')
     SUPABASE_JWT_SECRET = os.environ.get('SUPABASE_JWT_SECRET')
+    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
     
     # ── Term defaults (for centralized date management) ──
     DEFAULT_TERM_START = '2026-10-04'

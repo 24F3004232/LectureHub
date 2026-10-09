@@ -5,8 +5,8 @@ import pytz
 from app.extensions import db
 from app.models import Subject, Event, RecordingArchive
 from app.auth import login_required, current_user
-from app.sync import sync_subject
 from app.utils import drive_embed_url
+from app.sync import sync_subject, sync_subject_with_token
 
 main_bp = Blueprint('main', __name__)
 IST = pytz.timezone('Asia/Kolkata')
@@ -172,17 +172,33 @@ def event_detail(event_id):
 @login_required
 def sync(subject_id):
     subj = Subject.query.filter_by(id=subject_id, user_id=current_user.id).first_or_404()
-    ok, msg = sync_subject(subj)
+    
+    # Token-relay path: JS sent a short-lived Google token from the browser session
+    if request.is_json and request.json.get('google_token'):
+        ok, msg = sync_subject_with_token(subj, request.json['google_token'])
+    else:
+        ok, msg = sync_subject(subj)
+    
     return jsonify({'ok': ok, 'msg': msg})
 
 @main_bp.route('/sync_all', methods=['POST'])
 @login_required
 def sync_all():
     subjects = Subject.query.filter_by(user_id=current_user.id).all()
+
+    # Token-relay path: JS sent a short-lived Google token from the browser session
+    google_token = None
+    if request.is_json:
+        google_token = request.json.get('google_token')
+
     results = []
     for subj in subjects:
-        ok, msg = sync_subject(subj)
+        if google_token:
+            ok, msg = sync_subject_with_token(subj, google_token)
+        else:
+            ok, msg = sync_subject(subj)
         results.append({'subject': subj.name, 'ok': ok, 'msg': msg})
+
     return jsonify({'results': results})
 
 @main_bp.route('/event/<int:event_id>/description', methods=['POST'])
@@ -437,7 +453,7 @@ def llms_txt():
     """llms.txt — emerging standard for AI assistants to understand the site."""
     body = """# LECFLOW
 
-> LECFLOW (LectureHub) is a free TA and Instructor lecture organiser for IIT Madras BS Online Degree
+> LECFLOW is a free TA and Instructor lecture organiser for IIT Madras BS Online Degree
 > students. It syncs public course calendars, surfaces live Google Meet links and
 > Drive/YouTube recordings per lecture, and provides a Markdown notes editor with
 > KaTeX math, autosave and PDF export, plus watched-progress tracking and a
@@ -458,3 +474,12 @@ def llms_txt():
 - [FAQ](https://lecflow.space/#faq)
 """
     return body, 200, {'Content-Type': 'text/plain; charset=utf-8'}
+
+
+@main_bp.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@main_bp.route('/terms')
+def terms():
+    return render_template('terms.html')
