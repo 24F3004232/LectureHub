@@ -3,12 +3,67 @@ import re
 import requests
 import datetime as dt_module
 from datetime import datetime
+from collections import defaultdict
 from icalendar import Calendar
 from recurring_ical_events import of
 from app.extensions import db
 from app.models import Subject, Event
-from app.utils import embed_url_to_ical, extract_links, to_datetime
+from app.utils import embed_url_to_ical, extract_links, to_datetime, is_skippable_event
 import pytz
+
+
+def _normalize_ical_uid(ical_uid: str) -> str:
+    """Strip Google Calendar recurring-event modification suffixes.
+
+    When an instructor edits a recurring event from occurrence N onwards,
+    Google creates a shadow series whose iCalUID has '_R<date>T<time>'
+    inserted before '@google.com':
+        67ost2c2tj0b4mmb61v7vcht49_R20261012T143000@google.com
+    Normalising it back to the base UID means the shadow occurrences are
+    treated as UPDATEs of existing rows rather than new inserts, which
+    prevents the duplicate-row-per-session bug entirely."""
+    return re.sub(r'_R\d{8}T\d{6}(?=@)', '', ical_uid)
+
+
+def _dedup_db_events(subject_id):
+    """Merge duplicate DB rows that share the same title + start time.
+    Safety net for any duplicates that slipped through UID normalisation.
+    Keeps the row with the most useful links and rescues data from duplicates
+    before deleting them."""
+    all_evs = Event.query.filter_by(subject_id=subject_id).all()
+    by_slot = defaultdict(list)
+    for ev in all_evs:
+        # strip() guards against trailing-space title mismatches;
+        # replace(tzinfo=None) makes the comparison timezone-naive so that
+        # IST-aware and UTC-aware datetimes representing the same moment
+        # always hash and compare equal.
+        norm_date = ev.date.replace(tzinfo=None) if ev.date else None
+        by_slot[(ev.calendar_title.strip(), norm_date)].append(ev)
+
+    for slot_evs in by_slot.values():
+        if len(slot_evs) <= 1:
+            continue
+        # meet=4 pts, drive=2 pts, youtube=1 pt — keep the richest row
+        slot_evs.sort(
+            key=lambda e: (bool(e.meet_link) * 4 +
+                           bool(e.drive_link) * 2 +
+                           bool(e.youtube_link)),
+            reverse=True
+        )
+        keeper = slot_evs[0]
+        for dup in slot_evs[1:]:
+            if not keeper.meet_link and dup.meet_link:
+                keeper.meet_link = dup.meet_link
+            if not keeper.drive_link and dup.drive_link:
+                keeper.drive_link = dup.drive_link
+            if not keeper.youtube_link and dup.youtube_link:
+                keeper.youtube_link = dup.youtube_link
+            if not keeper.user_description and dup.user_description:
+                keeper.user_description = dup.user_description
+            if not keeper.raw_description and dup.raw_description:
+                keeper.raw_description = dup.raw_description
+            db.session.delete(dup)
+
 
 def sync_subject(subject):
     ical_url = embed_url_to_ical(subject.calendar_url)
@@ -53,10 +108,19 @@ def sync_subject(subject):
         if start is None:
             continue
 
+        # ── Normalise UID: collapse _R<date>T<time> shadow series ────────────
+        ical_uid = _normalize_ical_uid(ical_uid)
+        # ─────────────────────────────────────────────────────────────────────
+
         occurrence_uid = f"{ical_uid}_{start.isoformat()}"
 
-        title = str(component.get('SUMMARY', 'Untitled'))
+        title    = str(component.get('SUMMARY', 'Untitled'))
         raw_desc = str(component.get('DESCRIPTION', '') or '')
+
+        # ── Skip bot-generated events (Bubbles notes, etc.) ──────────────────
+        if is_skippable_event(title, raw_desc):
+            continue
+        # ─────────────────────────────────────────────────────────────────────
 
         meet_link, drive_link = extract_links(raw_desc)
         attachments = component.get('ATTACH')
@@ -74,11 +138,14 @@ def sync_subject(subject):
             ev.calendar_title = title
             ev.date = start
             ev.end_datetime = end
-            ev.raw_description = raw_desc
+            # ── Only overwrite description/links if the new value is richer ──
+            if raw_desc:
+                ev.raw_description = raw_desc
             if drive_link:
                 ev.drive_link = drive_link
             if meet_link:
                 ev.meet_link = meet_link
+            # ─────────────────────────────────────────────────────────────────
         else:
             ev = Event(
                 uid=occurrence_uid,
@@ -92,6 +159,16 @@ def sync_subject(subject):
             )
             db.session.add(ev)
         count += 1
+
+    # ── Remove previously-synced skippable events (one-time cleanup) ─────────
+    for ev in existing_events:
+        if is_skippable_event(ev.calendar_title, ev.raw_description or ''):
+            db.session.delete(ev)
+    # ─────────────────────────────────────────────────────────────────────────
+
+    # ── Deduplicate: safety net for any remaining duplicates ─────────────────
+    _dedup_db_events(subject.id)
+    # ─────────────────────────────────────────────────────────────────────────
 
     db.session.commit()
     subject.last_synced = datetime.utcnow()
@@ -190,10 +267,20 @@ def sync_subject_with_token(subject, google_token):
         if start is None:
             continue
 
+        # ── Normalise UID: collapse _R<date>T<time> shadow series ────────────
+        ical_uid = _normalize_ical_uid(ical_uid)
+        # ─────────────────────────────────────────────────────────────────────
+
         occurrence_uid = f"{ical_uid}_{start.isoformat()}"
 
         title       = item.get("summary", "Untitled")
         description = item.get("description", "") or ""
+
+        # ── Skip bot-generated events (Bubbles notes, etc.) ──────────────────
+        if is_skippable_event(title, description):
+            continue
+        # ─────────────────────────────────────────────────────────────────────
+
         meet_link, drive_link = extract_links(description)
 
         # Attachments (Google API returns these separately from description)
@@ -207,9 +294,12 @@ def sync_subject_with_token(subject, google_token):
             ev.calendar_title  = title
             ev.date            = start
             ev.end_datetime    = end
-            ev.raw_description = description
-            ev.drive_link      = drive_link or ev.drive_link  # keep old if none returned
-            ev.meet_link       = meet_link  or ev.meet_link
+            # ── Only overwrite description/links if the new value is richer ──
+            if description:
+                ev.raw_description = description
+            ev.drive_link = drive_link or ev.drive_link
+            ev.meet_link  = meet_link  or ev.meet_link
+            # ─────────────────────────────────────────────────────────────────
         else:
             ev = Event(
                 uid=occurrence_uid,
@@ -223,6 +313,16 @@ def sync_subject_with_token(subject, google_token):
             )
             db.session.add(ev)
         count += 1
+
+    # ── Remove previously-synced skippable events (one-time cleanup) ─────────
+    for ev in existing_events:
+        if is_skippable_event(ev.calendar_title, ev.raw_description or ''):
+            db.session.delete(ev)
+    # ─────────────────────────────────────────────────────────────────────────
+
+    # ── Deduplicate: safety net for any remaining duplicates ─────────────────
+    _dedup_db_events(subject.id)
+    # ─────────────────────────────────────────────────────────────────────────
 
     db.session.commit()
     subject.last_synced = datetime.utcnow()

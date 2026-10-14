@@ -10,6 +10,33 @@ from app.extensions import db
 IST = pytz.timezone('Asia/Kolkata')
 
 
+# ── Auto-generated calendar entries that should never appear in the app ──────
+_SKIP_TITLE_PATTERNS = [
+    re.compile(r'post[- ]?meeting\s+notes', re.IGNORECASE),   # Bubbles post-meeting notes
+    re.compile(r'bubbles\.com', re.IGNORECASE),                # any other Bubbles event
+    # add more patterns here if other bots start polluting the calendar
+]
+
+# Description patterns are more reliable — Bubbles always injects its URL
+# into the description even when it copies the original lecture title
+_SKIP_DESCRIPTION_PATTERNS = [
+    re.compile(r'usebubbles\.com', re.IGNORECASE),
+]
+
+def is_skippable_event(title: str, description: str = '') -> bool:
+    """Return True for bot-created calendar entries (Bubbles, etc.) that
+    must be ignored during sync and hidden on the dashboard.
+
+    Checks both title AND description so Bubbles events are caught even
+    when Bubbles reuses the original lecture title instead of generating
+    a 'Post-Meeting Notes' title of its own."""
+    if title and any(pat.search(title) for pat in _SKIP_TITLE_PATTERNS):
+        return True
+    if description and any(pat.search(description) for pat in _SKIP_DESCRIPTION_PATTERNS):
+        return True
+    return False
+
+
 def embed_url_to_ical(url):
     """Convert any Google Calendar URL variant to an iCal feed URL."""
     url = url.strip()
@@ -164,6 +191,7 @@ def drive_embed_url(url):
     if file_id:
         return f"https://drive.google.com/file/d/{file_id}/preview"
     return None
+
 
 def extract_recordings_to_archive(term_label='May 2026'):
     """Copy every Drive link from event tables into recording_archive.

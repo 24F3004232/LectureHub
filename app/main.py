@@ -5,7 +5,7 @@ import pytz
 from app.extensions import db
 from app.models import Subject, Event, RecordingArchive
 from app.auth import login_required, current_user
-from app.utils import drive_embed_url
+from app.utils import drive_embed_url, is_skippable_event
 from app.sync import sync_subject, sync_subject_with_token
 
 main_bp = Blueprint('main', __name__)
@@ -106,6 +106,32 @@ def setup():
             flash('Please add at least one subject with a calendar link.', 'error')
     return render_template('setup.html')
 
+def _dedup_events(evs):
+    """If two events share the same title and start time (same real-world slot),
+    keep only the one with the most useful links. Merging is done in sync;
+    this is a display-level safety net for rows that slipped through."""
+    seen = {}   # (calendar_title, date) → index in result
+    result = []
+    for ev in evs:
+        slot = (ev.calendar_title, ev.date)
+        if slot not in seen:
+            seen[slot] = len(result)
+            result.append(ev)
+        else:
+            idx = seen[slot]
+            existing = result[idx]
+            # meet link = 4 pts, drive = 2 pts, youtube = 1 pt
+            existing_score = (bool(existing.meet_link) * 4 +
+                              bool(existing.drive_link) * 2 +
+                              bool(existing.youtube_link))
+            new_score = (bool(ev.meet_link) * 4 +
+                         bool(ev.drive_link) * 2 +
+                         bool(ev.youtube_link))
+            if new_score > existing_score:
+                result[idx] = ev
+    return result
+
+
 @main_bp.route('/dashboard')
 @login_required
 def dashboard():
@@ -116,7 +142,18 @@ def dashboard():
     active_tab = request.args.get('tab', str(subjects[0].id))
     events_by_subject = {}
     for subj in subjects:
-        evs = Event.query.filter_by(subject_id=subj.id).order_by(Event.date.asc()).all()
+        raw_evs = Event.query.filter_by(subject_id=subj.id).order_by(Event.date.asc()).all()
+
+        # ── 1. Filter bot-generated events (Bubbles, etc.) ───────────────────
+        filtered = [
+            ev for ev in raw_evs
+            if not is_skippable_event(ev.calendar_title, ev.raw_description or '')
+        ]
+
+        # ── 2. Deduplicate: same title + same start time → keep richest row ──
+        evs = _dedup_events(filtered)
+        # ─────────────────────────────────────────────────────────────────────
+
         for ev in evs:
             if ev.end_datetime is not None and ev.end_datetime.tzinfo is None:
                 ev.end_datetime = IST.localize(ev.end_datetime)
@@ -136,12 +173,8 @@ def update_youtube(event_id):
         Event.id == event_id, Subject.user_id == current_user.id
     ).first_or_404()
     data = request.get_json(silent=True) or {}
-    print("DEBUG youtube route hit, event_id:", event_id)
-    print("DEBUG raw data:", data)
-    print("DEBUG youtube_link value:", data.get('youtube_link'))
     ev.youtube_link = data.get('youtube_link', '').strip() or None
     db.session.commit()
-    print("DEBUG after commit, ev.youtube_link:", ev.youtube_link)
     return jsonify({'success': True, 'youtube_link': ev.youtube_link})
 
 @main_bp.route('/event/<int:event_id>')
@@ -172,13 +205,13 @@ def event_detail(event_id):
 @login_required
 def sync(subject_id):
     subj = Subject.query.filter_by(id=subject_id, user_id=current_user.id).first_or_404()
-    
+
     # Token-relay path: JS sent a short-lived Google token from the browser session
     if request.is_json and request.json.get('google_token'):
         ok, msg = sync_subject_with_token(subj, request.json['google_token'])
     else:
         ok, msg = sync_subject(subj)
-    
+
     return jsonify({'ok': ok, 'msg': msg})
 
 @main_bp.route('/sync_all', methods=['POST'])
@@ -342,7 +375,7 @@ def resources():
             .filter(RecordingArchive.term == selected_term)
         )
         subjects = sorted([s[0] for s in subject_query.all() if s[0]])
-        
+
         # Only fetch recordings if BOTH term and subject are selected
         if selected_subject:
             query = RecordingArchive.query.filter(
@@ -393,10 +426,10 @@ def update_resource_week(archive_id):
 def resource_detail(archive_id):
     """Internal detail page for a resource, styled like event_detail."""
     rec = RecordingArchive.query.get_or_404(archive_id)
-    
+
     # Drive embed takes priority; fall back to YouTube embed
     embed_url = drive_embed_url(rec.drive_link) or youtube_embed_url(rec.youtube_link or '')
-    
+
     return render_template(
         'resource_detail.html',
         rec=rec,
@@ -420,7 +453,7 @@ def robots():
         "Disallow: /sync\n"
         "Disallow: /sync_all\n"
         "Disallow: /delete_subject\n"
-        "Disallow: /resources\n"   # Added resources to disallow for crawlers
+        "Disallow: /resources\n"
         "\n"
         "# AI assistants welcome on public pages.\n"
         "Sitemap: https://lecflow.space/sitemap.xml\n"
